@@ -1,0 +1,131 @@
+## MARK: - Project Name
+name: DotaHero
+
+
+## MARK: - Configs Section
+configs:
+    DEV-Debug   : debug
+    DEV-Release : release
+    STA-Debug   : debug
+    STA-Release : release
+    PRO-Debug   : debug
+    PRO-Release : release
+
+## MARK: - Option Section
+options:
+    xcodeVersion             : '12.4'
+    deploymentTarget         : '13.0'
+    groupSortPosition        : down
+    generateEmptyDirectories : true
+    minimumXcodeGenVersion   : '2.18.0'
+    preGenCommand            : ./pregencommand.sh
+    postGenCommand           : pod install
+
+## MARK: - Target Section
+targets:
+    DotaHero:
+        type: application
+        platform: iOS
+        sources: DotaHero
+        settings:
+            base:
+                CODE_SIGN_STYLE: Automatic
+                DEVELOPMENT_TEAM: 5NTQ9A32JY
+                EXCLUDED_ARCHS[sdk=iphonesimulator*]: arm64
+                IPHONEOS_DEPLOYMENT_TARGET: 13.0
+                INFOPLIST_FILE: DotaHero/Resources/Info.plist
+                MOMC_NO_WARNINGS: true
+                TARGETED_DEVICE_FAMILY: 1
+            configs:
+                DEV-Debug:
+                    PRODUCT_BUNDLE_IDENTIFIER: com.arifluthfiansyah.dotahero.dev
+                    PRODUCT_NAME: DEV Dota Hero
+                    SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEV
+                DEV-Release:
+                    PRODUCT_BUNDLE_IDENTIFIER: com.arifluthfiansyah.dotahero.dev
+                    PRODUCT_NAME: DEV Dota Hero
+                    SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEV
+                STA-Debug:
+                    PRODUCT_BUNDLE_IDENTIFIER: com.arifluthfiansyah.dotahero.sta
+                    PRODUCT_NAME: STA Dota Hero
+                    SWIFT_ACTIVE_COMPILATION_CONDITIONS: STA
+                STA-Release:
+                    PRODUCT_BUNDLE_IDENTIFIER: com.arifluthfiansyah.dotahero.sta
+                    PRODUCT_NAME: STA Dota Hero
+                    SWIFT_ACTIVE_COMPILATION_CONDITIONS: STA
+                PRO-Debug:
+                    PRODUCT_BUNDLE_IDENTIFIER: com.arifluthfiansyah.dotahero
+                    PRODUCT_NAME: Dota Hero
+                    SWIFT_ACTIVE_COMPILATION_CONDITIONS: PRO
+                PRO-Release:
+                    PRODUCT_BUNDLE_IDENTIFIER: com.arifluthfiansyah.dotahero
+                    PRODUCT_NAME: Dota Hero
+                    SWIFT_ACTIVE_COMPILATION_CONDITIONS: PRO
+        info:
+            path: DotaHero/Resources/Info.plist
+            properties:
+                CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
+                CFBundleExecutable: $(EXECUTABLE_NAME)
+                CFBundleInfoDictionaryVersion: 6.0
+                CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
+                CFBundleShortVersionString: 1.0.0
+                CFBundleVersionString: 1.0
+                LSRequiresIPhoneOS: true
+                UIApplicationSceneManifest:
+                    UIApplicationSupportsMultipleScenes: false
+                    UISceneConfigurations:
+                        UIWindowSceneSessionRoleApplication:
+                            - UISceneConfigurationName: Default Configuration
+                              UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+                              UISceneStoryboardFile: LaunchScreen
+                UIApplicationSupportsIndirectInputEvents: true
+                UILaunchStoryboardName: LaunchScreen
+                UIMainStoryboardFile: LaunchScreen
+                UIRequiredDeviceCapabilities:
+                    - armv7
+                UISupportedInterfaceOrientations: [UIInterfaceOrientationLandscapeLeft,
+                                                   UIInterfaceOrientationLandscapeRight]
+    DotaHeroTests:
+        type: bundle.unit-test
+        platform: iOS
+        sources:
+            - path: DotaHeroTests
+        settings:
+            INFOPLIST_FILE: DotaHeroTests/Info.plist
+            TEST_TARGET_NAME: DotaHero
+            TEST_HOST: $(BUILT_PRODUCTS_DIR)/DEV Dota Hero.app/DEV Dota Hero
+
+## MARK: - Scheme Section
+schemes:
+    DEV-DotaHero:
+        build:
+            targets:
+                DotaHero: [run, archive]
+        run:
+            config: DEV-Debug
+        test:
+            config: DEV-Debug
+        profile:
+            config: DEV-Release
+        analyze:
+            config: DEV-Debug
+        archive:
+            config: DEV-Release
+            customArchiveName: DEV DotaHero
+            revealArchiveInOrganizer: true
+    PRO-DotaHero:
+        build:
+            targets:
+                DotaHero: [run, archive]
+        run:
+            config: PRO-Debug
+        test:
+            config: PRO-Debug
+        profile:
+            config: PRO-Release
+        analyze:
+            config: PRO-Debug
+        archive:
+            config: PRO-Release
+            customArchiveName: PRO DotaHero
+            revealArchiveInOrganizer: true

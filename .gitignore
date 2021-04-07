@@ -2,4 +2,4 @@ Pods/
 Podfile.lock
 *.xcworkspace
 *.xcodeproj
-DotaHero/Resources/Info.plist
+DotaHero/Resources/Info*

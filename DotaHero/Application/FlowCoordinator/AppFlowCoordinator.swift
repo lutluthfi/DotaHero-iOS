@@ -36,6 +36,11 @@ final class DefaultAppFlowCoordinator {
 extension DefaultAppFlowCoordinator: AppFlowCoordinator {
     
     func start(with instructor: AppFlowCoordinatorInstructor) {
+        switch instructor {
+        case .default:
+            let requestValue = BSListViewModelRequestValue()
+            self.flowFactory.makeBrowseFlowCoordinator().start(with: .pushToListUI(requestValue))
+        }
     }
     
 }

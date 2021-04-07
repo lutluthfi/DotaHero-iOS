@@ -9,4 +9,6 @@ import Foundation
 
 public protocol UseCaseFactory {
     
+    func makeFetchAllHeroStatUseCase() -> FetchAllHeroStatUseCase
+    
 }

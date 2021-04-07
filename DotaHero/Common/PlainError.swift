@@ -1,6 +1,6 @@
 //
 //  PlainError.swift
-//  HealthDiary
+//  DotaHero
 //
 //  Created by Arif Luthfiansyah on 30/03/21.
 //

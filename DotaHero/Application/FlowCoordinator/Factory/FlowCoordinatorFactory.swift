@@ -9,4 +9,6 @@ import Foundation
 
 public protocol FlowCoordinatorFactory {
     
+    func makeBrowseFlowCoordinator() -> BrowseFlowCoordinator
+    
 }

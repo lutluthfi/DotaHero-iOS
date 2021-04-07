@@ -34,7 +34,7 @@ extension DefaultRemoteHeroStatStorage: RemoteHeroStatStorage {
                 let domainsPart = observable.0.map { $0.toDomain() }
                 let progressPart = observable.1
                 let _observable = (domainsPart, progressPart)
-                return Observable.just(_observable)
+                return .just(_observable)
             }
     }
     

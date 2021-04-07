@@ -1,6 +1,6 @@
 //
 //  StoragePoint.swift
-//  HealthDiary
+//  DotaHero
 //
 //  Created by Arif Luthfiansyah on 27/03/21.
 //

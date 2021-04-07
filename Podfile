@@ -5,6 +5,8 @@ target 'DotaHero' do
 
   pod 'IGListKit'
   
+  pod 'Kingfisher'
+  
   pod 'RealmSwift'
 
   pod 'RxAlamofire'

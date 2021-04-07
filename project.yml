@@ -83,7 +83,8 @@ targets:
                 UIMainStoryboardFile: LaunchScreen
                 UIRequiredDeviceCapabilities:
                     - armv7
-                UISupportedInterfaceOrientations: [UIInterfaceOrientationLandscapeLeft,
+                UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait,
+                                                   UIInterfaceOrientationLandscapeLeft,
                                                    UIInterfaceOrientationLandscapeRight]
     DotaHeroTests:
         type: bundle.unit-test

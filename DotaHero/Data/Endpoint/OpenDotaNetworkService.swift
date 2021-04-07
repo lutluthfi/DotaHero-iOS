@@ -10,8 +10,8 @@ import RxSwift
 
 public struct OpenDotaNetworkService {
     
-    public var baseURL: String { return "https://api.opendota.com" }
-    public var contextPath: String { return "api" }
+    public static let baseURL = "https://api.opendota.com"
+    public static let contextPath = "api"
     
     let session: Session
     
@@ -20,8 +20,9 @@ public struct OpenDotaNetworkService {
     }
     
     public func fetchHeroStats(with requestDTO: FetchHeroStatDTO.Request) -> Observable<([FetchHeroStatDTO.Response], NetworkProgress)> {
+        let requestPath = "\(OpenDotaNetworkService.baseURL)/\(OpenDotaNetworkService.contextPath)/\(requestDTO.path)"
         return self.session.rx
-            .request(requestDTO.method, "\(self.baseURL)/\(self.contextPath)/\(requestDTO.path)")
+            .request(requestDTO.method, requestPath)
             .flatMap { (request) -> Observable<([FetchHeroStatDTO.Response], NetworkProgress)>  in
                 let responseDTOPart: Observable<[FetchHeroStatDTO.Response]> = request.rx.decodable()
                 let progressPart = request.rx.progress()

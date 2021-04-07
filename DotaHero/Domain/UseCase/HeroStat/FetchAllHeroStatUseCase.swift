@@ -7,19 +7,6 @@
 
 import RxSwift
 
-public enum FetchAllHeroStatUseCaseError: LocalizedError {
-    
-}
-
-extension FetchAllHeroStatUseCaseError {
-    
-    public var errorDescription: String? {
-        switch self {
-        }
-    }
-    
-}
-
 public struct FetchAllHeroStatUseCaseResponse {
     
     public let heroStats: [HeroStatDomain]

@@ -5,6 +5,8 @@
 //  Created by Arif Luthfiansyah on 05/04/21.
 //
 
+import Kingfisher
+import SnapKit
 import UIKit
 
 @main

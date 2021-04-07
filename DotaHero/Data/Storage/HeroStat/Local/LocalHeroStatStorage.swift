@@ -31,7 +31,9 @@ extension DefaultLocalHeroStatStorage: LocalHeroStatStorage {
     public func fetchHeroStats() -> Observable<[HeroStatDomain]> {
         return Observable.create { [unowned self] (observer) -> Disposable in
             let objects = self.realmStorage.realm.objects(HeroStatRealm.self)
-            let domains = Array(objects).map { $0.toDomain() }
+            let domains = Array(objects)
+                .sorted { $0.heroName < $1.heroName }
+                .map { $0.toDomain() }
             observer.onNext(domains)
             observer.onCompleted()
             return Disposables.create()

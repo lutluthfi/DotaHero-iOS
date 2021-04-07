@@ -1,44 +1,44 @@
 //
-//  BSMasterView.swift
+//  BSDetailView.swift
 //  DotaHero
 //
-//  Created by Arif Luthfiansyah on 05/04/21.
+//  Created by Arif Luthfiansyah on 07/04/21.
 //  Copyright (c) 2021 All rights reserved.
 
 import UIKit
 
-// MARK: BSMasterViewDelegate
-protocol BSMasterViewDelegate: AnyObject {
+// MARK: BSDetailViewDelegate
+protocol BSDetailViewDelegate: AnyObject {
     
 }
 
-// MARK: BSMasterViewFunction
-protocol BSMasterViewFunction {
+// MARK: BSDetailViewFunction
+protocol BSDetailViewFunction {
     func viewWillAppear(navigationBar: UINavigationBar?,
                         navigationItem: UINavigationItem,
                         tabBarController: UITabBarController?)
     func viewWillDisappear()
 }
 
-// MARK: BSMasterViewSubview
-protocol BSMasterViewSubview {
+// MARK: BSDetailViewSubview
+protocol BSDetailViewSubview {
 }
 
-// MARK: BSMasterViewVariable
-protocol BSMasterViewVariable {
-    var delegate: BSMasterViewDelegate? { get }
+// MARK: BSDetailViewVariable
+protocol BSDetailViewVariable {
+    var delegate: BSDetailViewDelegate? { get }
 }
 
-// MARK: BSMasterView
-protocol BSMasterView: BSMasterViewFunction, BSMasterViewSubview, BSMasterViewVariable { }
+// MARK: BSDetailView
+protocol BSDetailView: BSDetailViewFunction, BSDetailViewSubview, BSDetailViewVariable { }
 
-// MARK: DefaultBSMasterView
-final class DefaultBSMasterView: UIView, BSMasterView {
+// MARK: DefaultBSDetailView
+final class DefaultBSDetailView: UIView, BSDetailView {
 
-    // MARK: BSMasterViewSubview
+    // MARK: BSDetailViewSubview
 
-    // MARK: BSMasterViewVariable
-    weak var delegate: BSMasterViewDelegate?
+    // MARK: BSDetailViewVariable
+    weak var delegate: BSDetailViewDelegate?
     
     // MARK: Init Function
     required init?(coder: NSCoder) {
@@ -60,7 +60,7 @@ final class DefaultBSMasterView: UIView, BSMasterView {
 }
 
 // MARK: Internal Function
-extension DefaultBSMasterView {
+extension DefaultBSDetailView {
     
     func subviewWillAdd() {
     }
@@ -76,8 +76,8 @@ extension DefaultBSMasterView {
     
 }
 
-// MARK: BSMasterViewFunction
-extension DefaultBSMasterView {
+// MARK: BSDetailViewFunction
+extension DefaultBSDetailView {
     
     func viewWillAppear(navigationBar: UINavigationBar?,
                         navigationItem: UINavigationItem,

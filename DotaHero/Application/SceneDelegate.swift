@@ -9,6 +9,14 @@ import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
+    lazy var navigationController: UINavigationController = {
+        let controller = UINavigationController()
+        controller.view.backgroundColor = .white
+        return controller
+    }()
+    lazy var appDIContainer = AppDIContainer(navigationController: self.navigationController)
+    lazy var appFlowCoordinator: AppFlowCoordinator = DefaultAppFlowCoordinator(navigationController: self.navigationController,
+                                                                                factory: self.appDIContainer)
     var window: UIWindow?
 
     func scene(_ scene: UIScene,
@@ -16,10 +24,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
         self.window = UIWindow(windowScene: windowScene)
-        let viewModel = DefaultBSMasterViewModel(requestValue: BSMasterViewModelRequestValue(),
-                                                 route: BSMasterViewModelRoute())
-        self.window?.rootViewController = BSMasterController.create(with: viewModel)
+        self.window?.rootViewController = self.navigationController
         self.window?.makeKeyAndVisible()
+        self.appFlowCoordinator.start(with: .default)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

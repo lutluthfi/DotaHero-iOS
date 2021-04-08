@@ -22,6 +22,9 @@ public struct BSListViewModelRequestValue {
 
 // MARK: BSListViewModelRoute
 public struct BSListViewModelRoute {
+    
+    var showBSDetailUI: ((BSDetailViewModelRequestValue) -> Void)?
+    
 }
 
 // MARK: BSListViewModelInput
@@ -29,6 +32,7 @@ protocol BSListViewModelInput {
 
     func viewDidLoad()
     func doSelect(heroRole: String)
+    func doSelect(heroStat: HeroStatDomain)
 
 }
 
@@ -93,6 +97,30 @@ extension DefaultBSListViewModel {
         }
         let filterHeroStats = self._heroStats.filter { $0.roles.contains(heroRole) }
         self.showedHeroStats.onNext(filterHeroStats)
+    }
+    
+    func doSelect(heroStat: HeroStatDomain) {
+        let similarHeroStats: Array<HeroStatDomain>.SubSequence
+        let samePrimaryAttributeHeroes = self._heroStats
+            .filter({ $0.primaryAttribute.caseInsensitiveCompare(heroStat.primaryAttribute) == .orderedSame })
+        switch heroStat.primaryAttribute.lowercased() {
+        case "agi":
+            similarHeroStats = samePrimaryAttributeHeroes
+                .sorted(by: { $0.moveSpeed > $1.moveSpeed })
+                .prefix(3)
+        case "int":
+            similarHeroStats = samePrimaryAttributeHeroes
+                .sorted(by: { $0.baseMana > $1.baseMana })
+                .prefix(3)
+        case "str":
+            similarHeroStats = samePrimaryAttributeHeroes
+                .sorted(by: { $0.baseAttackMax > $1.baseAttackMax })
+                .prefix(3)
+        default:
+            similarHeroStats = Array<HeroStatDomain>.SubSequence()
+        }
+        let requestValue = BSDetailViewModelRequestValue(heroStat: heroStat, similarHeroStats: Array(similarHeroStats))
+        self.route.showBSDetailUI?(requestValue)
     }
     
 }

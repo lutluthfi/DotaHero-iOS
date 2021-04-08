@@ -42,7 +42,7 @@ extension DefaultFetchAllHeroStatUseCase: FetchAllHeroStatUseCase {
             .flatMap(self.fetchHeroStatsInRemoteWhenEmptyInLocal(_:))
             .flatMap(self.insertHeroStatsIntoLocal(_:))
             .flatMap { (observable) -> Observable<FetchAllHeroStatUseCaseResponse> in
-                let heroStas = observable.0
+                let heroStas = observable.0.sorted { $0.heroName < $1.heroName }
                 let progress = observable.1
                 let response = FetchAllHeroStatUseCaseResponse(heroStats: heroStas, progress: progress)
                 return .just(response)

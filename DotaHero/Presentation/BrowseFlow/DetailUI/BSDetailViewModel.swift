@@ -6,6 +6,7 @@
 //  Copyright (c) 2021 All rights reserved.
 
 import Foundation
+import RxSwift
 
 // MARK: BSDetailViewModelResponse
 enum BSDetailViewModelResponse {
@@ -17,6 +18,10 @@ protocol BSDetailViewModelDelegate: class {
 
 // MARK: BSDetailViewModelRequestValue
 public struct BSDetailViewModelRequestValue {
+    
+    public let heroStat: HeroStatDomain
+    public let similarHeroStats: [HeroStatDomain]
+    
 }
 
 // MARK: BSDetailViewModelRoute
@@ -33,6 +38,8 @@ protocol BSDetailViewModelInput {
 // MARK: BSDetailViewModelOutput
 protocol BSDetailViewModelOutput {
 
+    var showedHeroStatAndSimilarHeroes: PublishSubject<(HeroStatDomain, [HeroStatDomain])> { get }
+    
 }
 
 // MARK: BSDetailViewModel
@@ -49,13 +56,11 @@ final class DefaultBSDetailViewModel: BSDetailViewModel {
     // MARK: UseCase Variable
 
 
-
     // MARK: Common Variable
-
     
 
     // MARK: Output ViewModel
-    
+    let showedHeroStatAndSimilarHeroes = PublishSubject<(HeroStatDomain, [HeroStatDomain])>()
 
     // MARK: Init Function
     init(requestValue: BSDetailViewModelRequestValue,
@@ -70,6 +75,8 @@ final class DefaultBSDetailViewModel: BSDetailViewModel {
 extension DefaultBSDetailViewModel {
     
     func viewDidLoad() {
+        let element = (self.requestValue.heroStat, self.requestValue.similarHeroStats)
+        self.showedHeroStatAndSimilarHeroes.onNext(element)
     }
     
 }

@@ -15,8 +15,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         return controller
     }()
     lazy var appDIContainer = AppDIContainer(navigationController: self.navigationController)
-    lazy var appFlowCoordinator: AppFlowCoordinator = DefaultAppFlowCoordinator(navigationController: self.navigationController,
-                                                                                factory: self.appDIContainer)
+    lazy var appFlowCoordinator: AppFlowCoordinator = {
+        return DefaultAppFlowCoordinator(navigationController: self.navigationController,
+                                         factory: self.appDIContainer)
+    }()
     var window: UIWindow?
 
     func scene(_ scene: UIScene,
@@ -38,7 +40,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillResignActive(_ scene: UIScene) {
     }
 
-    func sceneWillEnterForeground(_ scene: UIScene) {    }
+    func sceneWillEnterForeground(_ scene: UIScene) {
+    }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
     }

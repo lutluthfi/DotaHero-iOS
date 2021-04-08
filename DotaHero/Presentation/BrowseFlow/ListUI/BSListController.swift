@@ -41,14 +41,17 @@ final class BSListController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.bind(view: self.listView, viewModel: self.viewModel)
+        self.listView.viewDidLoad(navigationBar: self.navigationController?.navigationBar,
+                                  navigationItem: self.navigationItem,
+                                  tabBarController: self.tabBarController)
         self.viewModel.viewDidLoad()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.listView.viewWillAppear(navigationBar: self.navigationController?.navigationBar,
-                                  navigationItem: self.navigationItem,
-                                  tabBarController: self.tabBarController)
+                                     navigationItem: self.navigationItem,
+                                     tabBarController: self.tabBarController)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -63,6 +66,7 @@ final class BSListController: UIViewController {
                                                         heroRolesSubject: self.showedHeroRoles)
         self.bindHeroStatsToCollectionView(observables: self.showedHeroStats, collectionView: view.collectionView)
         self.bindHeroRolesToTableView(observables: self.showedHeroRoles, tableView: view.tableView)
+        self.bindCollectionViewModelSelected(collectionView: view.collectionView)
         self.bindTableViewModelSelected(tableView: view.tableView)
         self.bindTableViewItemSelected(tableView: view.tableView)
         self.bindTableViewItemDeselected(tableView: view.tableView)
@@ -73,6 +77,16 @@ final class BSListController: UIViewController {
 
 // MARK: Bind Function
 extension BSListController {
+    
+    func bindCollectionViewModelSelected(collectionView: UICollectionView) {
+        collectionView.rx
+            .modelSelected(HeroStatDomain.self)
+            .asDriver()
+            .drive(onNext: { [unowned self] (heroStat) in
+                self.viewModel.doSelect(heroStat: heroStat)
+            })
+            .disposed(by: self.disposeBag)
+    }
     
     func bindHeroRolesToTableView(observables: Observable<[String]>, tableView: UITableView) {
         let dataSource = self.makeRxTableViewDataSource()
@@ -127,6 +141,7 @@ extension BSListController {
             .modelSelected(String.self)
             .asDriver()
             .drive { [unowned self] (heroRole) in
+                self.listView.setNavigationItemTitle(self.navigationItem, title: heroRole)
                 self.viewModel.doSelect(heroRole: heroRole)
             }
             .disposed(by: self.disposeBag)

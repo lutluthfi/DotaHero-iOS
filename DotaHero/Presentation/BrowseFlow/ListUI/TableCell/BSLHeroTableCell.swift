@@ -12,7 +12,7 @@ class BSLHeroTableCell: UITableViewCell {
     static let identifier = String(describing: BSLHeroTableCell.self)
     static let height = CGFloat(44)
 
-    lazy var contentContainerView: UIView = {
+    lazy var containerContentView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.makeRound()
@@ -28,7 +28,7 @@ class BSLHeroTableCell: UITableViewCell {
     
     override var isSelected: Bool {
         didSet {
-            self.contentContainerView.backgroundColor = self.isSelected ? .white : .black
+            self.containerContentView.backgroundColor = self.isSelected ? .white : .black
             self.roleLabel.textColor = self.isSelected ? .black : .white
         }
     }
@@ -50,12 +50,12 @@ class BSLHeroTableCell: UITableViewCell {
     }
     
     private func subviewDidAdd() {
-        self.contentView.addSubview(self.contentContainerView)
-        self.contentContainerView.addSubview(self.roleLabel)
+        self.contentView.addSubview(self.containerContentView)
+        self.containerContentView.addSubview(self.roleLabel)
     }
     
     private func subviewConstraintDidMake() {
-        self.contentContainerView.snp.makeConstraints { (make) in
+        self.containerContentView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview().inset(2)
         }
         self.roleLabel.snp.makeConstraints { (make) in

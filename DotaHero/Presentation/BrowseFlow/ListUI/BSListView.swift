@@ -9,10 +9,14 @@ import UIKit
 
 // MARK: BSListViewFunction
 protocol BSListViewFunction {
+    func viewDidLoad(navigationBar: UINavigationBar?,
+                     navigationItem: UINavigationItem,
+                     tabBarController: UITabBarController?)
     func viewWillAppear(navigationBar: UINavigationBar?,
                         navigationItem: UINavigationItem,
                         tabBarController: UITabBarController?)
     func viewWillDisappear()
+    func setNavigationItemTitle(_ navigationItem: UINavigationItem, title: String)
 }
 
 // MARK: BSListViewSubview
@@ -101,14 +105,22 @@ extension DefaultBSListView {
 // MARK: BSListViewFunction
 extension DefaultBSListView {
     
-    func viewWillAppear(navigationBar: UINavigationBar?,
-                        navigationItem: UINavigationItem,
-                        tabBarController: UITabBarController?) {
+    func viewDidLoad(navigationBar: UINavigationBar?,
+                     navigationItem: UINavigationItem,
+                     tabBarController: UITabBarController?) {
         navigationItem.title = "Dota 2"
     }
     
+    func viewWillAppear(navigationBar: UINavigationBar?,
+                        navigationItem: UINavigationItem,
+                        tabBarController: UITabBarController?) {
+    }
+    
     func viewWillDisappear() {
-        
+    }
+    
+    func setNavigationItemTitle(_ navigationItem: UINavigationItem, title: String) {
+        navigationItem.title = title
     }
     
 }

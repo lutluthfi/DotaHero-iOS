@@ -9,6 +9,22 @@ import UIKit
 
 extension AppDIContainer: BrowseFlowCoordinatorFactory { }
 
+// MARK: BSDetailUI
+extension AppDIContainer {
+    
+    public func makeBSDetailController(requestValue: BSDetailViewModelRequestValue,
+                                       route: BSDetailViewModelRoute) -> UIViewController {
+        let viewModel = self.makeBSDetailViewModel(requestValue: requestValue, route: route)
+        return BSDetailController.create(with: viewModel)
+    }
+    
+    private func makeBSDetailViewModel(requestValue: BSDetailViewModelRequestValue,
+                                       route: BSDetailViewModelRoute) -> BSDetailViewModel {
+        return DefaultBSDetailViewModel(requestValue: requestValue, route: route)
+    }
+    
+}
+
 // MARK: BSListUI
 extension AppDIContainer {
     

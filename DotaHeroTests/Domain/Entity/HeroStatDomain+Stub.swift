@@ -22,6 +22,7 @@ extension HeroStatDomain {
                               baseHealth: 200,
                               baseMana: 75,
                               heroName: "Anti-Mage",
+                              image: "/apps/dota2/images/heroes/antimage_full.png?",
                               moveSpeed: 310,
                               primaryAttribute: "agi",
                               roles:["Carry",

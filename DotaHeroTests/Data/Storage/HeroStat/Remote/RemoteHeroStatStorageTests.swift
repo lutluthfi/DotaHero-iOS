@@ -18,7 +18,7 @@ class RemoteHeroStatStorageTests: XCTestCase {
             .toBlocking(timeout: self.sut.timeout)
             .single()
         
-        XCTAssertTrue(!result.0.isEmpty)
+        XCTAssertFalse(result.0.isEmpty)
         XCTAssertTrue(result.0.count > 100)
         XCTAssertTrue(result.0.contains(.stubElement))
     }

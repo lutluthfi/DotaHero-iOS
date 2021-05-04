@@ -12,27 +12,30 @@ import UIKit
 
 // MARK: BSListController
 final class BSListController: UIViewController {
-
+    
     // MARK: DI Variable
     lazy var listView: BSListView = DefaultBSListView()
     lazy var _view = (self.listView as! UIView)
     var viewModel: BSListViewModel!
-
+    
     // MARK: Common Variable
     let disposeBag = DisposeBag()
     let showedHeroStats = PublishSubject<[HeroStatDomain]>()
     let showedHeroRoles = PublishSubject<[String]>()
-
+    
     // MARK: Create Function
     class func create(with viewModel: BSListViewModel) -> BSListController {
         let controller = BSListController()
         controller.viewModel = viewModel
         return controller
     }
-
+    
     // MARK: UIViewController Function
     override func loadView() {
-        self.listView.collectionView.rx
+        self.listView.heroCollectionView.rx
+            .setDelegate(self)
+            .disposed(by: self.disposeBag)
+        self.listView.roleCollectionView.rx
             .setDelegate(self)
             .disposed(by: self.disposeBag)
         self.view = self._view
@@ -40,7 +43,18 @@ final class BSListController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.bind(view: self.listView, viewModel: self.viewModel)
+        self.bindShowedHeroStatsToHeroStatsAndHeroRoles(observables: self.viewModel.showedHeroStats,
+                                                        heroStatsSubject: self.showedHeroStats,
+                                                        heroRolesSubject: self.showedHeroRoles)
+        self.bindHeroStatsToHeroCollectionView(observables: self.showedHeroStats,
+                                               collectionView: self.listView.heroCollectionView)
+        self.bindHeroRolesToRoleCollectionView(observables: self.showedHeroRoles,
+                                               collectionView: self.listView.roleCollectionView)
+        self.bindHeroCollectionViewModelSelected(collectionView: self.listView.heroCollectionView)
+        self.bindRoleCollectionViewWillDisplayCell(collectionView: self.listView.roleCollectionView)
+        self.bindRoleCollectionViewModelSelected(collectionView: self.listView.roleCollectionView)
+        self.bindRoleCollectionViewItemDeselected(collectionView: self.listView.roleCollectionView)
+        self.bindRoleCollectionViewItemSelected(collectionView: self.listView.roleCollectionView)
         self.listView.viewDidLoad(navigationBar: self.navigationController?.navigationBar,
                                   navigationItem: self.navigationItem,
                                   tabBarController: self.tabBarController)
@@ -58,51 +72,151 @@ final class BSListController: UIViewController {
         super.viewWillDisappear(animated)
         self.listView.viewWillDisappear()
     }
-
-    // MARK: Bind View & ViewModel Function
-    private func bind(view: BSListView, viewModel: BSListViewModel) {
-        self.bindShowedHeroStatsToHeroStatsAndHeroRoles(observables: viewModel.showedHeroStats,
-                                                        heroStatsSubject: self.showedHeroStats,
-                                                        heroRolesSubject: self.showedHeroRoles)
-        self.bindHeroStatsToCollectionView(observables: self.showedHeroStats, collectionView: view.collectionView)
-        self.bindHeroRolesToTableView(observables: self.showedHeroRoles, tableView: view.tableView)
-        self.bindCollectionViewModelSelected(collectionView: view.collectionView)
-        self.bindTableViewModelSelected(tableView: view.tableView)
-        self.bindTableViewItemSelected(tableView: view.tableView)
-        self.bindTableViewItemDeselected(tableView: view.tableView)
-        self.bindTableViewWillDisplayCell(tableView: view.tableView)
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        guaranteeMainThread {
+            self.listView.roleCollectionView.reloadData()
+            self.listView.heroCollectionView.reloadData()
+        }
     }
     
 }
 
-// MARK: Bind Function
+// MARK: BindHeroRolesToRoleCollectionView
 extension BSListController {
     
-    func bindCollectionViewModelSelected(collectionView: UICollectionView) {
+    func bindHeroRolesToRoleCollectionView(observables: Observable<[String]>, collectionView: UICollectionView) {
+        let dataSource = self.makeHeroRoleDataSource()
+        observables
+            .map({ [SectionDomain<String>(header: "", footer: "", items: $0)] })
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
+            .disposed(by: self.disposeBag)
+    }
+    
+    private func makeHeroRoleDataSource() -> RxCollectionViewSectionedAnimatedDataSource<SectionDomain<String>> {
+        let dataSource = RxCollectionViewSectionedAnimatedDataSource<SectionDomain<String>>
+        { (_, collectionView, index, item) -> UICollectionViewCell in
+            let identifier = BSLSRoleCollectionCell.identifier
+            let reusableCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: index)
+            guard let cell = reusableCell as? BSLSRoleCollectionCell else {
+                fatalError("Cannot dequeueReusableCell with identifier: \(identifier)")
+            }
+            cell.fill(with: item)
+            return cell
+        }
+        return dataSource
+    }
+    
+}
+
+// MARK: BindHeroCollectionViewModelSelected
+extension BSListController {
+    
+    func bindHeroCollectionViewModelSelected(collectionView: UICollectionView) {
         collectionView.rx
             .modelSelected(HeroStatDomain.self)
             .asDriver()
-            .drive(onNext: { [unowned self] (heroStat) in
-                self.viewModel.doSelect(heroStat: heroStat)
+            .drive(onNext: { [unowned self] (hero) in
+                self.viewModel.doSelect(heroStat: hero)
             })
             .disposed(by: self.disposeBag)
     }
     
-    func bindHeroRolesToTableView(observables: Observable<[String]>, tableView: UITableView) {
-        let dataSource = self.makeRxTableViewDataSource()
-        observables
-            .map({ [SectionItemDomain(footer: nil, header: nil, items: $0)] })
-            .bind(to: tableView.rx.items(dataSource: dataSource))
-            .disposed(by: self.disposeBag)
-    }
+}
+
+// MARK: BindHeroStatsToHeroCollectionView
+extension BSListController {
     
-    func bindHeroStatsToCollectionView(observables: Observable<[HeroStatDomain]>, collectionView: UICollectionView) {
-        let dataSource = self.makeRxCollectionViewDataSource()
+    func bindHeroStatsToHeroCollectionView(observables: Observable<[HeroStatDomain]>, collectionView: UICollectionView) {
+        let dataSource = self.makeHeroStatDataSource()
         observables
-            .map { [HeroStatSectionModel(model: "", items: $0)] }
+            .map { [SectionDomain<HeroStatDomain>(header: "", footer: "", items: $0)] }
             .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: self.disposeBag)
     }
+    
+    private func makeHeroStatDataSource() -> RxCollectionViewSectionedAnimatedDataSource<SectionDomain<HeroStatDomain>> {
+        let dataSource = RxCollectionViewSectionedAnimatedDataSource<SectionDomain<HeroStatDomain>>
+        { (_, collectionView, index, item) -> BSLSHeroCollectionCell in
+            let identifier = BSLSHeroCollectionCell.identifier
+            let reusableCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: index)
+            guard let cell = reusableCell as? BSLSHeroCollectionCell else {
+                fatalError("Cannot dequeueReusableCell with identifier: \(identifier)")
+            }
+            cell.fill(with: item)
+            return cell
+        }
+        return dataSource
+    }
+    
+}
+
+// MARK: BindRoleCollectionViewItemDeselected
+extension BSListController {
+    
+    func bindRoleCollectionViewItemDeselected(collectionView: UICollectionView) {
+        collectionView.rx
+            .itemDeselected
+            .asDriver()
+            .drive(onNext: { [unowned collectionView] (index) in
+                collectionView.deselectItem(at: index, animated: true)
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
+}
+
+// MARK: BindRoleCollectionViewItemSelected
+extension BSListController {
+    
+    func bindRoleCollectionViewItemSelected(collectionView: UICollectionView) {
+        collectionView.rx
+            .itemSelected
+            .asDriver()
+            .drive(onNext: { [unowned collectionView] (index) in
+                collectionView.selectItem(at: index, animated: true, scrollPosition: [])
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
+}
+
+// MARK: BindRoleCollectionViewModelSelected
+extension BSListController {
+    
+    func bindRoleCollectionViewModelSelected(collectionView: UICollectionView) {
+        collectionView.rx
+            .modelSelected(String.self)
+            .asDriver()
+            .drive(onNext: { [unowned self] (heroRole) in
+                self.listView.setNavigationItemTitle(self.navigationItem, title: heroRole)
+                self.viewModel.doSelect(heroRole: heroRole)
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
+}
+
+// MARK: BindRoleCollectionViewWillDisplayCell
+extension BSListController {
+    
+    func bindRoleCollectionViewWillDisplayCell(collectionView: UICollectionView) {
+        collectionView.rx
+            .willDisplayCell
+            .asDriver()
+            .drive(onNext: { [unowned collectionView] (observable) in
+                let cell = observable.cell as? BSLSRoleCollectionCell
+                let isCellSelected = collectionView.indexPathsForSelectedItems?.contains(observable.at)
+                cell?.isSelected = isCellSelected == true
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
+}
+
+// MARK: BindShowedHeroStatsToHeroStatsAndHeroRoles
+extension BSListController {
     
     func bindShowedHeroStatsToHeroStatsAndHeroRoles(observables: Observable<[HeroStatDomain]>,
                                                     heroStatsSubject: PublishSubject<[HeroStatDomain]>,
@@ -116,83 +230,6 @@ extension BSListController {
             .disposed(by: self.disposeBag)
     }
     
-    func bindTableViewItemDeselected(tableView: UITableView) {
-        tableView.rx
-            .itemDeselected
-            .asDriver()
-            .drive { [unowned tableView] (indexPath) in
-                tableView.deselectRow(at: indexPath, animated: true)
-            }
-            .disposed(by: self.disposeBag)
-    }
-    
-    func bindTableViewItemSelected(tableView: UITableView) {
-        tableView.rx
-            .itemSelected
-            .asDriver()
-            .drive { [unowned tableView] (indexPath) in
-                tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
-            }
-            .disposed(by: self.disposeBag)
-    }
-    
-    func bindTableViewModelSelected(tableView: UITableView) {
-        tableView.rx
-            .modelSelected(String.self)
-            .asDriver()
-            .drive { [unowned self] (heroRole) in
-                self.listView.setNavigationItemTitle(self.navigationItem, title: heroRole)
-                self.viewModel.doSelect(heroRole: heroRole)
-            }
-            .disposed(by: self.disposeBag)
-    }
-    
-    func bindTableViewWillDisplayCell(tableView: UITableView) {
-        tableView.rx
-            .willDisplayCell
-            .asDriver()
-            .drive { (event) in
-                let cell = event.cell as! BSLHeroTableCell
-                let isCellSelected = event.indexPath == tableView.indexPathForSelectedRow
-                cell.isSelected = isCellSelected ? true : false
-            }
-            .disposed(by: self.disposeBag)
-    }
-    
-}
-
-// MARK: RxTableViewSectionedReloadDataSource | BSLHeroTableCell
-extension BSListController {
-    
-    func makeRxTableViewDataSource() -> RxTableViewSectionedReloadDataSource<SectionItemDomain<String>> {
-        let dataSource = RxTableViewSectionedReloadDataSource<SectionItemDomain<String>>
-        { (_, tableView, _, item) -> BSLHeroTableCell in
-            let cell = BSLHeroTableCell(style: .subtitle)
-            cell.roleLabel.text = item
-            return cell
-        }
-        return dataSource
-    }
-    
-}
-
-// MARK: RxCollectionViewSectionedReloadDataSource | BSLHeroCollectionCell
-extension BSListController {
-    
-    func makeRxCollectionViewDataSource() -> RxCollectionViewSectionedAnimatedDataSource<HeroStatSectionModel> {
-        let dataSource = RxCollectionViewSectionedAnimatedDataSource<HeroStatSectionModel>
-        { (_, collectionView, indexPath, item) -> BSLHeroCollectionCell in
-            let identifier = BSLHeroCollectionCell.identifier
-            let reusableCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
-            guard let cell = reusableCell as? BSLHeroCollectionCell else {
-                fatalError("Cannot dequeueReusableCell with identifier: \(identifier)")
-            }
-            cell.fill(with: item)
-            return cell
-        }
-        return dataSource
-    }
-    
 }
 
 // MARK: UICollectionViewDelegateFlowLayout
@@ -201,21 +238,52 @@ extension BSListController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return CGFloat(2)
+        switch collectionView {
+        case self.listView.heroCollectionView:
+            return CGFloat(2)
+        case self.listView.roleCollectionView:
+            return CGFloat(2)
+        default:
+            return .zero
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return CGFloat(4)
+        switch collectionView {
+        case self.listView.heroCollectionView:
+            return CGFloat(4)
+        case self.listView.roleCollectionView:
+            return CGFloat(4)
+        default:
+            return .zero
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (collectionView.bounds.width / 3) - 2
-        let height = width
-        return CGSize(width: width, height: height)
+        switch collectionView {
+        case self.listView.heroCollectionView:
+            let width = (collectionView.bounds.width / 3) - 2
+            let height = width
+            return CGSize(width: width, height: height)
+        case self.listView.roleCollectionView:
+            switch UIDevice.current.orientation {
+            case .landscapeLeft, .landscapeRight:
+                let width = collectionView.bounds.width - 2
+                let height = CGFloat(44)
+                return CGSize(width: width, height: height)
+            default:
+                let width = (collectionView.bounds.width / 5) - 2
+                let height = collectionView.bounds.height
+                return CGSize(width: width, height: height)
+            }
+        default:
+            return .zero
+        }
+        
     }
     
 }

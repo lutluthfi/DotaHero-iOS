@@ -21,8 +21,8 @@ protocol BSListViewFunction {
 
 // MARK: BSListViewSubview
 protocol BSListViewSubview {
-    var collectionView: UICollectionView { get }
-    var tableView: UITableView { get }
+    var heroCollectionView: UICollectionView { get }
+    var roleCollectionView: UICollectionView { get }
 }
 
 // MARK: BSListViewVariable
@@ -36,23 +36,23 @@ protocol BSListView: BSListViewFunction, BSListViewSubview, BSListViewVariable {
 final class DefaultBSListView: UIView, BSListView {
 
     // MARK: BSListViewSubview
-    lazy var collectionView: UICollectionView = {
+    lazy var heroCollectionView: UICollectionView = {
         let collectionViewLayout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .white
-        collectionView.register(BSLHeroCollectionCell.self,
-                                forCellWithReuseIdentifier: BSLHeroCollectionCell.identifier)
+        collectionView.register(BSLSHeroCollectionCell.self,
+                                forCellWithReuseIdentifier: BSLSHeroCollectionCell.identifier)
         return collectionView
     }()
-    lazy var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.register(BSLHeroTableCell.self, forCellReuseIdentifier: BSLHeroTableCell.identifier)
-        tableView.rowHeight = BSLHeroTableCell.height
-        tableView.allowsSelection = true
-        tableView.allowsMultipleSelection = false
-        return tableView
+    lazy var roleCollectionView: UICollectionView = {
+        let collectionViewLayout = UICollectionViewFlowLayout()
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .white
+        collectionView.register(BSLSRoleCollectionCell.self,
+                                forCellWithReuseIdentifier: BSLSRoleCollectionCell.identifier)
+        return collectionView
     }()
     
     // MARK: Init Function
@@ -78,22 +78,39 @@ final class DefaultBSListView: UIView, BSListView {
 extension DefaultBSListView {
     
     func subviewWillAdd() {
-        self.addSubview(self.tableView)
-        self.addSubview(self.collectionView)
+        self.addSubview(self.heroCollectionView)
+        self.addSubview(self.roleCollectionView)
     }
     
     func subviewConstraintWillMake() {
     }
     
     func subviewDidLayout() {
-        self.tableView.snp.makeConstraints { (make) in
-            make.width.equalTo(self.bounds.width / 5)
-            make.leading.equalTo(self.safeAreaLayoutGuide)
-            make.top.bottom.equalTo(self.safeAreaLayoutGuide)
-        }
-        self.collectionView.snp.makeConstraints { (make) in
-            make.leading.equalTo(self.tableView.snp.trailing)
-            make.top.trailing.bottom.equalTo(self.safeAreaLayoutGuide)
+        let collectionViewLayout = self.roleCollectionView.collectionViewLayout as! UICollectionViewFlowLayout
+        switch UIDevice.current.orientation {
+        case .landscapeLeft, .landscapeRight:
+            collectionViewLayout.scrollDirection = .vertical
+            self.roleCollectionView.snp.remakeConstraints { (make) in
+                make.width.equalTo(self.bounds.width / 5)
+                make.leading.equalTo(self.safeAreaLayoutGuide)
+                make.top.bottom.equalTo(self.safeAreaLayoutGuide)
+            }
+            self.heroCollectionView.snp.remakeConstraints { (make) in
+                make.leading.equalTo(self.roleCollectionView.snp.trailing)
+                make.top.trailing.bottom.equalTo(self.safeAreaLayoutGuide)
+            }
+        default:
+            collectionViewLayout.scrollDirection = .horizontal
+            self.roleCollectionView.snp.remakeConstraints { (make) in
+                make.height.equalTo(44)
+                make.leading.equalTo(self.safeAreaLayoutGuide)
+                make.top.equalTo(self.safeAreaLayoutGuide)
+                make.trailing.equalTo(self.safeAreaLayoutGuide)
+            }
+            self.heroCollectionView.snp.remakeConstraints { (make) in
+                make.leading.trailing.bottom.equalTo(self.safeAreaLayoutGuide)
+                make.top.equalTo(self.roleCollectionView.snp.bottom)
+            }
         }
     }
     

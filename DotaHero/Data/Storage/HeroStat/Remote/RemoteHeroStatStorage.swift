@@ -29,9 +29,9 @@ extension DefaultRemoteHeroStatStorage: RemoteHeroStatStorage {
     public func fetchHeroStats() -> Observable<([HeroStatDomain], NetworkProgress)> {
         let request = FetchHeroStatDTO.Request()
         return self.openDotaNetworkService
-            .fetchHeroStats(with: request, responseType: [FetchHeroStatDTO.Response].self)
+            .fetchHeroStats(with: request)
             .flatMap { (observable) -> Observable<([HeroStatDomain], NetworkProgress)> in
-                let domainsPart = observable.0.map({ $0.toDomain() })
+                let domainsPart = observable.0.map { $0.toDomain() }
                 let progressPart = observable.1
                 let _observable = (domainsPart, progressPart)
                 return .just(_observable)

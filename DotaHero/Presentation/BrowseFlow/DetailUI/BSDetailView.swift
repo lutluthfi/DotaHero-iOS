@@ -18,6 +18,7 @@ protocol BSDetailViewFunction {
 
 // MARK: BSDetailViewSubview
 protocol BSDetailViewSubview {
+    var tableView: UITableView { get }
 }
 
 // MARK: BSDetailViewVariable
@@ -31,23 +32,10 @@ protocol BSDetailView: BSDetailViewFunction, BSDetailViewSubview, BSDetailViewVa
 final class DefaultBSDetailView: UIView, BSDetailView {
     
     // MARK: BSDetailViewSubview
-    lazy var containerView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.alignment = .fill
-        stackView.distribution = .fill
-        stackView.spacing = 10
-        return stackView
-    }()
-    lazy var heroStatInfoView: BSDStackHeroStatInfoView = {
-        let view = BSDStackHeroStatInfoView()
-        return view
-    }()
-    lazy var similarHeroView: BSDStackSimilarHeroView = {
-        let view = BSDStackSimilarHeroView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: self.frame, style: .grouped)
+        
+        return tableView
     }()
     
     // MARK: BSDetailViewVariable
@@ -75,21 +63,13 @@ final class DefaultBSDetailView: UIView, BSDetailView {
 extension DefaultBSDetailView {
     
     func subviewWillAdd() {
-        self.addSubview(self.containerView)
-        self.containerView.addArrangedSubview(self.heroStatInfoView)
-        self.containerView.addArrangedSubview(self.similarHeroView)
+        
     }
     
     func subviewConstraintWillMake() {
     }
     
     func subviewDidLayout() {
-        self.containerView.snp.makeConstraints { (make) in
-            make.edges.equalTo(self.safeAreaLayoutGuide)
-        }
-        self.similarHeroView.snp.makeConstraints { (make) in
-            make.height.equalTo(self.bounds.height / 5)
-        }
     }
     
     func viewDidInit() {
@@ -110,46 +90,46 @@ extension DefaultBSDetailView {
     }
     
     func fill(with heroStat: HeroStatDomain, similarHeroes: [HeroStatDomain]) {
-        self.heroStatInfoView.heroInfoStackView.heroImageView.kf.indicatorType = .activity
-        self.heroStatInfoView.heroInfoStackView.heroImageView.kf.setImage(with: URL(string: heroStat.image)!,
-                                                                          options: [.cacheOriginalImage])
-        
-        self.heroStatInfoView.heroInfoStackView.heroNameStackView.imageView.image = self.makeImage(with: "🏹")
-        self.heroStatInfoView.heroInfoStackView.heroNameStackView.textLabel.text = heroStat.heroName
-        
-        let heroRole = heroStat.roles.joined(separator: ", ")
-        self.heroStatInfoView.heroInfoStackView.heroRoleLabel.text = "Role:\n\(heroRole)"
-        
-        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "⚔️")
-        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.baseAttackMin) - \(heroStat.baseAttackMax)"
-        
-        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "➕")
-        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.baseHealth)"
-        
-        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "🛡")
-        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.baseArmor)"
-        
-        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "🍶")
-        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.baseMana)"
-        
-        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "🥾")
-        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.moveSpeed)"
-        
-        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "⛓")
-        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.primaryAttribute)"
-        
-        guard similarHeroes.count == 3 else { return }
-        self.similarHeroView.leftHeroImageView.kf.indicatorType = .activity
-        self.similarHeroView.leftHeroImageView.kf.setImage(with: URL(string: similarHeroes[0].image)!,
-                                                           options: [.cacheOriginalImage])
-        
-        self.similarHeroView.centerHeroImageView.kf.indicatorType = .activity
-        self.similarHeroView.centerHeroImageView.kf.setImage(with: URL(string: similarHeroes[1].image)!,
-                                                             options: [.cacheOriginalImage])
-        
-        self.similarHeroView.rightHeroImageView.kf.indicatorType = .activity
-        self.similarHeroView.rightHeroImageView.kf.setImage(with: URL(string: similarHeroes[2].image)!,
-                                                            options: [.cacheOriginalImage])
+//        self.heroStatInfoView.heroInfoStackView.heroImageView.kf.indicatorType = .activity
+//        self.heroStatInfoView.heroInfoStackView.heroImageView.kf.setImage(with: URL(string: heroStat.image)!,
+//                                                                          options: [.cacheOriginalImage])
+//
+//        self.heroStatInfoView.heroInfoStackView.heroNameStackView.imageView.image = self.makeImage(with: "🏹")
+//        self.heroStatInfoView.heroInfoStackView.heroNameStackView.textLabel.text = heroStat.heroName
+//
+//        let heroRole = heroStat.roles.joined(separator: ", ")
+//        self.heroStatInfoView.heroInfoStackView.heroRoleLabel.text = "Role:\n\(heroRole)"
+//
+//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "⚔️")
+//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.baseAttackMin) - \(heroStat.baseAttackMax)"
+//
+//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "➕")
+//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.baseHealth)"
+//
+//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "🛡")
+//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.baseArmor)"
+//
+//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "🍶")
+//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.baseMana)"
+//
+//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "🥾")
+//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.moveSpeed)"
+//
+//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "⛓")
+//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.primaryAttribute)"
+//
+//        guard similarHeroes.count == 3 else { return }
+//        self.similarHeroView.leftHeroImageView.kf.indicatorType = .activity
+//        self.similarHeroView.leftHeroImageView.kf.setImage(with: URL(string: similarHeroes[0].image)!,
+//                                                           options: [.cacheOriginalImage])
+//
+//        self.similarHeroView.centerHeroImageView.kf.indicatorType = .activity
+//        self.similarHeroView.centerHeroImageView.kf.setImage(with: URL(string: similarHeroes[1].image)!,
+//                                                             options: [.cacheOriginalImage])
+//
+//        self.similarHeroView.rightHeroImageView.kf.indicatorType = .activity
+//        self.similarHeroView.rightHeroImageView.kf.setImage(with: URL(string: similarHeroes[2].image)!,
+//                                                            options: [.cacheOriginalImage])
     }
     
     private func makeImage(with string: String) -> UIImage? {

@@ -17,7 +17,7 @@ class OpenDotaNetworkServiceTests: XCTestCase {
     func test_fetchHeroStats_shouldFetchedAllHeroStatsFromOpenDotaEndpoint() throws {
         let request = FetchHeroStatDTO.Request()
         let result = try self.sut.networkService
-            .fetchHeroStats(with: request, responseType: [FetchHeroStatDTO.Response].self)
+            .fetchHeroStats(with: request)
             .toBlocking(timeout: self.sut.timeout)
             .single()
             

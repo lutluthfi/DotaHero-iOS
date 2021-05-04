@@ -1,17 +1,17 @@
 //
-//  BSLHeroTableCell.swift
+//  BSLSRoleCollectionCell.swift
 //  DotaHero
 //
-//  Created by Arif Luthfiansyah on 07/04/21.
+//  Created by Arif Luthfiansyah on 04/05/21.
 //
 
 import UIKit
 
-class BSLHeroTableCell: UITableViewCell {
+class BSLSRoleCollectionCell: UICollectionViewCell {
     
-    static let identifier = String(describing: BSLHeroTableCell.self)
+    static let identifier = String(describing: BSLSRoleCollectionCell.self)
     static let height = CGFloat(44)
-
+    
     lazy var containerContentView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -37,10 +37,10 @@ class BSLHeroTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(style: UITableViewCell.CellStyle) {
-        super.init(style: style, reuseIdentifier: BSLHeroTableCell.identifier)
-        self.subviewDidAdd()
-        self.subviewConstraintDidMake()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.subviewWillAdd()
+        self.subviewConstraintWillMake()
         self.viewDidInit()
     }
     
@@ -49,12 +49,12 @@ class BSLHeroTableCell: UITableViewCell {
         self.subviewDidLayout()
     }
     
-    private func subviewDidAdd() {
+    private func subviewWillAdd() {
         self.contentView.addSubview(self.containerContentView)
         self.containerContentView.addSubview(self.roleLabel)
     }
     
-    private func subviewConstraintDidMake() {
+    private func subviewConstraintWillMake() {
         self.containerContentView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview().inset(2)
         }
@@ -68,7 +68,14 @@ class BSLHeroTableCell: UITableViewCell {
     }
     
     private func viewDidInit() {
-        self.selectionStyle = .none
     }
+    
+}
 
+extension BSLSRoleCollectionCell {
+    
+    func fill(with role: String) {
+        self.roleLabel.text = role
+    }
+    
 }

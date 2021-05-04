@@ -36,8 +36,6 @@ extension HeroStatDomain: Equatable {
     
 }
 
-public typealias HeroStatSectionModel = AnimatableSectionModel<String, HeroStatDomain>
-
 extension HeroStatDomain: IdentifiableType {
     
     public typealias Identity = String

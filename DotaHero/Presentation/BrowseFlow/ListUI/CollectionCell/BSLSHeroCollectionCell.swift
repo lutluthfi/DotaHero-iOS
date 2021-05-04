@@ -1,5 +1,5 @@
 //
-//  BSLHeroCollectionCell.swift
+//  BSLSHeroCollectionCell.swift
 //  DotaHero
 //
 //  Created by Arif Luthfiansyah on 07/04/21.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-class BSLHeroCollectionCell: UICollectionViewCell {
+class BSLSHeroCollectionCell: UICollectionViewCell {
 
-    static let identifier = String(describing: BSLHeroCollectionCell.self)
+    static let identifier = String(describing: BSLSHeroCollectionCell.self)
     
     lazy var heroImageView: UIImageView = {
         let imageView = UIImageView()
@@ -33,8 +33,8 @@ class BSLHeroCollectionCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.subviewDidAdd()
-        self.subviewConstraintDidMake()
+        self.subviewWillAdd()
+        self.subviewConstraintWillMake()
     }
     
     override func layoutSubviews() {
@@ -42,28 +42,28 @@ class BSLHeroCollectionCell: UICollectionViewCell {
         self.subviewDidLayout()
     }
     
-    private func subviewDidAdd() {
+    private func subviewWillAdd() {
         self.contentView.addSubview(self.heroImageView)
         self.contentView.addSubview(self.heroNameLabel)
     }
     
-    private func subviewConstraintDidMake() {
-        self.heroImageView.snp.makeConstraints { (make) in
+    private func subviewConstraintWillMake() {
+    }
+    
+    private func subviewDidLayout() {
+        self.heroImageView.snp.remakeConstraints { (make) in
             make.height.equalTo(self.contentView.bounds.height * 0.7)
             make.leading.top.trailing.equalToSuperview()
             make.bottom.equalTo(self.heroNameLabel.snp.top)
         }
-        self.heroNameLabel.snp.makeConstraints { (make) in
+        self.heroNameLabel.snp.remakeConstraints { (make) in
             make.leading.trailing.bottom.equalToSuperview()
         }
     }
     
-    private func subviewDidLayout() {
-    }
-    
 }
 
-extension BSLHeroCollectionCell {
+extension BSLSHeroCollectionCell {
     
     func fill(with heroStat: HeroStatDomain) {
         self.heroNameLabel.text = heroStat.heroName

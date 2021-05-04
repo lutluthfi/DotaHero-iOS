@@ -19,17 +19,15 @@ public struct OpenDotaNetworkService {
         self.session = session
     }
     
-    public func fetchHeroStats<Request: Encodable,
-                               Response: Decodable>(with requestDTO: Request,
-                                                    responseType: Response.Type) -> Observable<(Response, NetworkProgress)> {
-        let requestPath = "\(OpenDotaNetworkService.baseURL)/\(OpenDotaNetworkService.contextPath)/herostats"
+    public func fetchHeroStats(with requestDTO: FetchHeroStatDTO.Request) -> Observable<([FetchHeroStatDTO.Response], NetworkProgress)> {
+        let requestPath = "\(OpenDotaNetworkService.baseURL)/\(OpenDotaNetworkService.contextPath)/\(requestDTO.path)"
         return self.session.rx
-            .request(.get, requestPath)
-            .flatMap({ (request) -> Observable<(Response, NetworkProgress)>  in
-                let responsePart: Observable<Response> = request.rx.decodable()
+            .request(requestDTO.method, requestPath)
+            .flatMap { (request) -> Observable<([FetchHeroStatDTO.Response], NetworkProgress)>  in
+                let responseDTOPart: Observable<[FetchHeroStatDTO.Response]> = request.rx.decodable()
                 let progressPart = request.rx.progress()
-                return Observable.combineLatest(responsePart, progressPart)
-            })
+                return Observable.combineLatest(responseDTOPart, progressPart)
+            }
             .observeOn(ConcurrentMainScheduler.instance)
     }
     

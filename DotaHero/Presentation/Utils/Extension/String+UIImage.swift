@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension String {
+public extension String {
     
     func image(withAttributes attributes: [NSAttributedString.Key: Any]? = nil,
                size: CGSize? = nil) -> UIImage? {

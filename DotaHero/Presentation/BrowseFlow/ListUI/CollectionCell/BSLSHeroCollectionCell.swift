@@ -35,6 +35,7 @@ class BSLSHeroCollectionCell: UICollectionViewCell {
         super.init(frame: frame)
         self.subviewWillAdd()
         self.subviewConstraintWillMake()
+        self.viewDidInit()
     }
     
     override func layoutSubviews() {
@@ -42,15 +43,19 @@ class BSLSHeroCollectionCell: UICollectionViewCell {
         self.subviewDidLayout()
     }
     
-    private func subviewWillAdd() {
+}
+
+extension BSLSHeroCollectionCell {
+    
+    func subviewWillAdd() {
         self.contentView.addSubview(self.heroImageView)
         self.contentView.addSubview(self.heroNameLabel)
     }
     
-    private func subviewConstraintWillMake() {
+    func subviewConstraintWillMake() {
     }
     
-    private func subviewDidLayout() {
+    func subviewDidLayout() {
         self.heroImageView.snp.remakeConstraints { (make) in
             make.height.equalTo(self.contentView.bounds.height * 0.7)
             make.leading.top.trailing.equalToSuperview()
@@ -59,6 +64,9 @@ class BSLSHeroCollectionCell: UICollectionViewCell {
         self.heroNameLabel.snp.remakeConstraints { (make) in
             make.leading.trailing.bottom.equalToSuperview()
         }
+    }
+    
+    func viewDidInit() {
     }
     
 }

@@ -6,6 +6,7 @@
 //  Copyright (c) 2021 All rights reserved.
 
 import Foundation
+import RxRelay
 import RxSwift
 
 // MARK: BSListViewModelResponse
@@ -16,31 +17,27 @@ enum BSListViewModelResponse {
 protocol BSListViewModelDelegate: class {
 }
 
-// MARK: BSListViewModelRequestValue
-public struct BSListViewModelRequestValue {
+// MARK: BSListViewModelRequest
+public struct BSListViewModelRequest {
 }
 
 // MARK: BSListViewModelRoute
 public struct BSListViewModelRoute {
-    
-    var showBSDetailUI: ((BSDetailViewModelRequestValue) -> Void)?
-    
+    var presentBSSortUI: ((BSSortViewModelRequest, BSSortViewModelResponse) -> Void)?
+    var pushToBSDetailUI: ((BSDetailViewModelRequest) -> Void)?
 }
 
 // MARK: BSListViewModelInput
 protocol BSListViewModelInput {
-
     func viewDidLoad()
     func doSelect(heroRole: String)
     func doSelect(heroStat: HeroStatDomain)
-
+    func presentBSSortUI()
 }
 
 // MARK: BSListViewModelOutput
 protocol BSListViewModelOutput {
-
-    var showedHeroStats: PublishSubject<[HeroStatDomain]> { get }
-    
+    var showedHeroStats: BehaviorRelay<[HeroStatDomain]> { get }
 }
 
 // MARK: BSListViewModel
@@ -51,7 +48,7 @@ final class DefaultBSListViewModel: BSListViewModel {
 
     // MARK: DI Variable
     weak var delegate: BSListViewModelDelegate?
-    let requestValue: BSListViewModelRequestValue
+    let requestValue: BSListViewModelRequest
     let route: BSListViewModelRoute
 
     // MARK: UseCase Variable
@@ -63,10 +60,10 @@ final class DefaultBSListViewModel: BSListViewModel {
     var _selectedHeroRole: String = "All"
 
     // MARK: Output ViewModel
-    let showedHeroStats = PublishSubject<[HeroStatDomain]>()
+    let showedHeroStats = BehaviorRelay<[HeroStatDomain]>(value: [])
 
     // MARK: Init Function
-    init(requestValue: BSListViewModelRequestValue,
+    init(requestValue: BSListViewModelRequest,
          route: BSListViewModelRoute,
          fetchAllHeroStatUseCase: FetchAllHeroStatUseCase) {
         self.requestValue = requestValue
@@ -85,18 +82,18 @@ extension DefaultBSListViewModel {
             .execute(request)
             .subscribe(onNext: { [unowned self] response in
                 self._heroStats = response.heroStats
-                self.showedHeroStats.onNext(response.heroStats)
+                self.showedHeroStats.accept(response.heroStats)
             })
             .disposed(by: self.disposeBag)
     }
     
     func doSelect(heroRole: String) {
         guard heroRole.caseInsensitiveCompare("all") != .orderedSame else {
-            self.showedHeroStats.onNext(self._heroStats)
+            self.showedHeroStats.accept(self._heroStats)
             return
         }
-        let filterHeroStats = self._heroStats.filter { $0.roles.contains(heroRole) }
-        self.showedHeroStats.onNext(filterHeroStats)
+        let filterHeroStats = self._heroStats.filter({ $0.roles.contains(heroRole) })
+        self.showedHeroStats.accept(filterHeroStats)
     }
     
     func doSelect(heroStat: HeroStatDomain) {
@@ -119,8 +116,23 @@ extension DefaultBSListViewModel {
         default:
             similarHeroStats = Array<HeroStatDomain>.SubSequence()
         }
-        let requestValue = BSDetailViewModelRequestValue(heroStat: heroStat, similarHeroStats: Array(similarHeroStats))
-        self.route.showBSDetailUI?(requestValue)
+        let requestValue = BSDetailViewModelRequest(heroStat: heroStat, similarHeroStats: Array(similarHeroStats))
+        self.route.pushToBSDetailUI?(requestValue)
+    }
+    
+    func presentBSSortUI() {
+        let request = BSSortViewModelRequest()
+        let response = BSSortViewModelResponse()
+        response
+            .selectedFactor
+            .map({ (factor) -> [HeroStatDomain] in
+                let _heroStats = self.showedHeroStats.value
+                let sortedHeroStats = _heroStats.sortedByFactor(factor)
+                return sortedHeroStats
+            })
+            .bind(to: self.showedHeroStats)
+            .disposed(by: self.disposeBag)
+        self.route.presentBSSortUI?(request, response)
     }
     
 }

@@ -6,6 +6,7 @@
 //  Copyright (c) 2021 All rights reserved.
 
 import Foundation
+import RxRelay
 import RxSwift
 
 // MARK: BSDetailViewModelResponse
@@ -16,12 +17,10 @@ enum BSDetailViewModelResponse {
 protocol BSDetailViewModelDelegate: class {
 }
 
-// MARK: BSDetailViewModelRequestValue
-public struct BSDetailViewModelRequestValue {
-    
+// MARK: BSDetailViewModelRequest
+public struct BSDetailViewModelRequest {
     public let heroStat: HeroStatDomain
     public let similarHeroStats: [HeroStatDomain]
-    
 }
 
 // MARK: BSDetailViewModelRoute
@@ -30,16 +29,12 @@ public struct BSDetailViewModelRoute {
 
 // MARK: BSDetailViewModelInput
 protocol BSDetailViewModelInput {
-
     func viewDidLoad()
-
 }
 
 // MARK: BSDetailViewModelOutput
 protocol BSDetailViewModelOutput {
-
-    var showedHeroStatAndSimilarHeroes: PublishSubject<(HeroStatDomain, [HeroStatDomain])> { get }
-    
+    var showedHeroStat: PublishRelay<HeroStatDomain> { get }
 }
 
 // MARK: BSDetailViewModel
@@ -50,7 +45,7 @@ final class DefaultBSDetailViewModel: BSDetailViewModel {
 
     // MARK: DI Variable
     weak var delegate: BSDetailViewModelDelegate?
-    let requestValue: BSDetailViewModelRequestValue
+    let requestValue: BSDetailViewModelRequest
     let route: BSDetailViewModelRoute
 
     // MARK: UseCase Variable
@@ -60,10 +55,10 @@ final class DefaultBSDetailViewModel: BSDetailViewModel {
     
 
     // MARK: Output ViewModel
-    let showedHeroStatAndSimilarHeroes = PublishSubject<(HeroStatDomain, [HeroStatDomain])>()
+    let showedHeroStat = PublishRelay<HeroStatDomain>()
 
     // MARK: Init Function
-    init(requestValue: BSDetailViewModelRequestValue,
+    init(requestValue: BSDetailViewModelRequest,
          route: BSDetailViewModelRoute) {
         self.requestValue = requestValue
         self.route = route
@@ -75,8 +70,8 @@ final class DefaultBSDetailViewModel: BSDetailViewModel {
 extension DefaultBSDetailViewModel {
     
     func viewDidLoad() {
-        let element = (self.requestValue.heroStat, self.requestValue.similarHeroStats)
-        self.showedHeroStatAndSimilarHeroes.onNext(element)
+        let heroStat = self.requestValue.heroStat
+        self.showedHeroStat.accept(heroStat)
     }
     
 }

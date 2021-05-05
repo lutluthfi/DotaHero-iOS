@@ -28,6 +28,15 @@ public struct HeroStatDomain {
     
 }
 
+public extension HeroStatDomain {
+    
+    static let sortByBaseAttack = "Base Attack (Lower Limit)"
+    static let sortByBaseHealth = "Base Health"
+    static let sortByBaseMana = "Base Mana"
+    static let sortByBaseSpeed = "Base Speed"
+    
+}
+
 extension HeroStatDomain: Equatable {
     
     public static func == (lhs: HeroStatDomain, rhs: HeroStatDomain) -> Bool {
@@ -48,6 +57,11 @@ extension HeroStatDomain: IdentifiableType {
 
 public extension Array where Element == HeroStatDomain {
     
+    func filter(roles: [String]) -> [HeroStatDomain] {
+        let ans = self.filter({ $0.roles.contains(roles) })
+        return ans
+    }
+    
     func populateRoles() -> [String] {
         var roles: [String] = ["All"]
         for role in self.flatMap({ $0.roles }) {
@@ -56,6 +70,43 @@ public extension Array where Element == HeroStatDomain {
             }
         }
         return roles.sorted()
+    }
+    
+    func sortedByFactor(_ factor: String) -> [HeroStatDomain] {
+        switch factor {
+        case HeroStatDomain.sortByBaseAttack:
+            return self.sorted(by: { $0.baseAttackMin > $1.baseAttackMin })
+        case HeroStatDomain.sortByBaseHealth:
+            return self.sorted(by: { $0.baseHealth > $1.baseHealth })
+        case HeroStatDomain.sortByBaseMana:
+            return self.sorted(by: { $0.baseMana > $1.baseMana })
+        case HeroStatDomain.sortByBaseSpeed:
+            return self.sorted(by: { $0.moveSpeed > $1.moveSpeed })
+        default:
+            return self
+        }
+    }
+    
+}
+
+private extension Array where Element == String {
+    
+    func contains(_ arr: [String]) -> Bool {
+        if self.count >= arr.count {
+            for element in self {
+                if arr.contains(element) {
+                    return true
+                }
+            }
+        }
+        if self.count <= arr.count {
+            for element in arr {
+                if self.contains(element) {
+                    return true
+                }
+            }
+        }
+        return false
     }
     
 }

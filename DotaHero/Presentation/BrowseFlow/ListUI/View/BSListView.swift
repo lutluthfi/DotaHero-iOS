@@ -9,9 +9,10 @@ import UIKit
 
 // MARK: BSListViewFunction
 protocol BSListViewFunction {
-    func viewDidLoad(navigationBar: UINavigationBar?,
+    func viewDidLoad(navigationController: UINavigationController?,
                      navigationItem: UINavigationItem,
-                     tabBarController: UITabBarController?)
+                     tabBarController: UITabBarController?,
+                     toolbarItems: inout [UIBarButtonItem]?)
     func viewWillAppear(navigationBar: UINavigationBar?,
                         navigationItem: UINavigationItem,
                         tabBarController: UITabBarController?)
@@ -23,6 +24,7 @@ protocol BSListViewFunction {
 protocol BSListViewSubview {
     var heroCollectionView: UICollectionView { get }
     var roleCollectionView: UICollectionView { get }
+    var sortBarButtonItem: UIBarButtonItem { get }
 }
 
 // MARK: BSListViewVariable
@@ -54,6 +56,10 @@ final class DefaultBSListView: UIView, BSListView {
                                 forCellWithReuseIdentifier: BSLSRoleCollectionCell.identifier)
         return collectionView
     }()
+    lazy var sortBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "line.horizontal.3.decrease.circle"),
+                                                 style: .done,
+                                                 target: self,
+                                                 action: nil)
     
     // MARK: Init Function
     required init?(coder: NSCoder) {
@@ -122,10 +128,13 @@ extension DefaultBSListView {
 // MARK: BSListViewFunction
 extension DefaultBSListView {
     
-    func viewDidLoad(navigationBar: UINavigationBar?,
+    func viewDidLoad(navigationController: UINavigationController?,
                      navigationItem: UINavigationItem,
-                     tabBarController: UITabBarController?) {
+                     tabBarController: UITabBarController?,
+                     toolbarItems: inout [UIBarButtonItem]?) {
         navigationItem.title = "Dota 2"
+        navigationController?.isToolbarHidden = false
+        toolbarItems = [.flexible, self.sortBarButtonItem]
     }
     
     func viewWillAppear(navigationBar: UINavigationBar?,

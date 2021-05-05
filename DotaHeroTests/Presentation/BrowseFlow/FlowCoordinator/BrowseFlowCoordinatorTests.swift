@@ -26,7 +26,7 @@ class BrowseFlowCoordinatorTests: XCTestCase {
 extension BrowseFlowCoordinatorTests {
     
     func test_start_whenInstructorPushToListUI_thenTopViewControllerIsBSListController() {
-        let requestValue = BSListViewModelRequestValue()
+        let requestValue = BSListViewModelRequest()
         let insturctor = BrowseFlowCoordinatorInstructor.pushToListUI(requestValue)
         
         self.sut.flowCoordinator.start(with: insturctor)
@@ -35,7 +35,7 @@ extension BrowseFlowCoordinatorTests {
     }
     
     func test_start_whenInstructorPushToDetailUI_thenTopViewControllerIsBSDetailController() {
-        let requestValue = BSDetailViewModelRequestValue(heroStat: .stubElement, similarHeroStats: [.stubElement])
+        let requestValue = BSDetailViewModelRequest(heroStat: .stubElement, similarHeroStats: [.stubElement])
         let insturctor = BrowseFlowCoordinatorInstructor.pushToDetailUI(requestValue)
         
         self.sut.flowCoordinator.start(with: insturctor)

@@ -11,11 +11,15 @@ import UIKit
 
 // MARK: BrowseFlowCoordinatorFactory
 public protocol BrowseFlowCoordinatorFactory  {
-    func makeBSListController(requestValue: BSListViewModelRequestValue,
+    func makeBSDetailController(request: BSDetailViewModelRequest,
+                                route: BSDetailViewModelRoute) -> UIViewController
+    
+    func makeBSListController(request: BSListViewModelRequest,
                               route: BSListViewModelRoute) -> UIViewController
     
-    func makeBSDetailController(requestValue: BSDetailViewModelRequestValue,
-                                route: BSDetailViewModelRoute) -> UIViewController
+    func makeBSSortController(request: BSSortViewModelRequest,
+                              response: BSSortViewModelResponse,
+                              route: BSSortViewModelRoute) -> UIViewController
 }
 
 // MARK: BrowseFlowCoordinator
@@ -25,8 +29,9 @@ public protocol BrowseFlowCoordinator {
 
 // MARK: BrowseFlowCoordinatorInstructor
 public enum BrowseFlowCoordinatorInstructor {
-    case pushToDetailUI(BSDetailViewModelRequestValue)
-    case pushToListUI(BSListViewModelRequestValue)
+    case presentSortUI(BSSortViewModelRequest, BSSortViewModelResponse, UIPresentProperties)
+    case pushToDetailUI(BSDetailViewModelRequest)
+    case pushToListUI(BSListViewModelRequest)
 }
 
 // MARK: DefaultBrowseFlowCoordinator
@@ -50,50 +55,82 @@ extension DefaultBrowseFlowCoordinator: BrowseFlowCoordinator {
     
     public func start(with instructor: BrowseFlowCoordinatorInstructor) {
         switch instructor {
-        case .pushToDetailUI(let requestValue):
-            self.pushToDetailUI(requestValue: requestValue)
-        case .pushToListUI(let requestValue):
-            self.pushToListUI(requestValue: requestValue)
+        case .presentSortUI(let request, let response, let presentProperties):
+            self.presentSortUI(request: request, response: response, presentProperties: presentProperties)
+        case .pushToDetailUI(let request):
+            self.pushToDetailUI(request: request)
+        case .pushToListUI(let request):
+            self.pushToListUI(request: request)
         }
     }
     
 }
 
-// MARK: BSDetailUI
+// MARK: DetailUI
 extension DefaultBrowseFlowCoordinator {
     
-    private func makeDetailUI(requestValue: BSDetailViewModelRequestValue) -> UIViewController {
+    private func makeDetailUI(request: BSDetailViewModelRequest) -> UIViewController {
         let route = BSDetailViewModelRoute()
-        let controller = self.controllerFactory.makeBSDetailController(requestValue: requestValue, route: route)
+        let controller = self.controllerFactory.makeBSDetailController(request: request, route: route)
         return controller
     }
     
-    func pushToDetailUI(requestValue: BSDetailViewModelRequestValue) {
+    func pushToDetailUI(request: BSDetailViewModelRequest) {
         guaranteeMainThread { [unowned self] in
-            let scene = self.makeDetailUI(requestValue: requestValue)
-            self.navigationController.pushViewController(scene, animated: true)
+            let controller = self.makeDetailUI(request: request)
+            self.navigationController.pushViewController(controller, animated: true)
         }
     }
     
 }
 
-// MARK: BSListUI
+// MARK: ListUI
 extension DefaultBrowseFlowCoordinator {
     
-    private func makeListUI(requestValue: BSListViewModelRequestValue) -> UIViewController {
-        let route = BSListViewModelRoute(showBSDetailUI: { requestValue in
-            let instructor = BrowseFlowCoordinatorInstructor.pushToDetailUI(requestValue)
+    private func makeListUI(request: BSListViewModelRequest) -> UIViewController {
+        let route = BSListViewModelRoute(presentBSSortUI: { (request, response) in
+            let presentProperties = UIPresentProperties(isModalInPresentation: true)
+            let instructor = BrowseFlowCoordinatorInstructor.presentSortUI(request, response, presentProperties)
+            self.start(with: instructor)
+        }, pushToBSDetailUI: { (request) in
+            let instructor = BrowseFlowCoordinatorInstructor.pushToDetailUI(request)
             self.start(with: instructor)
         })
-        let controller = self.controllerFactory.makeBSListController(requestValue: requestValue, route: route)
+        let controller = self.controllerFactory.makeBSListController(request: request, route: route)
         return controller
     }
     
-    func pushToListUI(requestValue: BSListViewModelRequestValue) {
+    func pushToListUI(request: BSListViewModelRequest) {
         guaranteeMainThread { [unowned self] in
-            let scene = self.makeListUI(requestValue: requestValue)
-            self.navigationController.pushViewController(scene, animated: true)
+            let controller = self.makeListUI(request: request)
+            self.navigationController.pushViewController(controller, animated: true)
         }
     }
     
+}
+
+// MARK: SortUI
+extension DefaultBrowseFlowCoordinator {
+    
+    private func makeSortUI(request: BSSortViewModelRequest, response: BSSortViewModelResponse) -> UIViewController {
+        let route = BSSortViewModelRoute()
+        let constroller = self.controllerFactory.makeBSSortController(request: request,
+                                                                      response: response,
+                                                                      route: route)
+        return constroller
+    }
+    
+    func presentSortUI(request: BSSortViewModelRequest,
+                       response: BSSortViewModelResponse,
+                       presentProperties: UIPresentProperties) {
+        guaranteeMainThread {
+            let controller = self.makeSortUI(request: request, response: response)
+            controller.isModalInPresentation = presentProperties.isModalInPresentation
+            controller.modalPresentationStyle = presentProperties.modalPresentationStyle
+            controller.modalTransitionStyle = presentProperties.modalTransitionStyle
+            let navigationController = UINavigationController(rootViewController: controller)
+            self.navigationController.present(navigationController, animated: true)
+        }
+    }
+
 }

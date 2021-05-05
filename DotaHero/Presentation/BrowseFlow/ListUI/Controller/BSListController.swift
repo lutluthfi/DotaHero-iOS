@@ -43,7 +43,8 @@ final class BSListController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.bindShowedHeroStatsToHeroStatsAndHeroRoles(observables: self.viewModel.showedHeroStats,
+        self.bindSortBarButtonItemTap(barButtonItem: self.listView.sortBarButtonItem)
+        self.bindShowedHeroStatsToHeroStatsAndHeroRoles(relay: self.viewModel.showedHeroStats,
                                                         heroStatsSubject: self.showedHeroStats,
                                                         heroRolesSubject: self.showedHeroRoles)
         self.bindHeroStatsToHeroCollectionView(observables: self.showedHeroStats,
@@ -55,9 +56,10 @@ final class BSListController: UIViewController {
         self.bindRoleCollectionViewModelSelected(collectionView: self.listView.roleCollectionView)
         self.bindRoleCollectionViewItemDeselected(collectionView: self.listView.roleCollectionView)
         self.bindRoleCollectionViewItemSelected(collectionView: self.listView.roleCollectionView)
-        self.listView.viewDidLoad(navigationBar: self.navigationController?.navigationBar,
+        self.listView.viewDidLoad(navigationController: self.navigationController,
                                   navigationItem: self.navigationItem,
-                                  tabBarController: self.tabBarController)
+                                  tabBarController: self.tabBarController,
+                                  toolbarItems: &self.toolbarItems)
         self.viewModel.viewDidLoad()
     }
     
@@ -83,33 +85,6 @@ final class BSListController: UIViewController {
     
 }
 
-// MARK: BindHeroRolesToRoleCollectionView
-extension BSListController {
-    
-    func bindHeroRolesToRoleCollectionView(observables: Observable<[String]>, collectionView: UICollectionView) {
-        let dataSource = self.makeHeroRoleDataSource()
-        observables
-            .map({ [SectionDomain<String>(header: "", footer: "", items: $0)] })
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
-            .disposed(by: self.disposeBag)
-    }
-    
-    private func makeHeroRoleDataSource() -> RxCollectionViewSectionedAnimatedDataSource<SectionDomain<String>> {
-        let dataSource = RxCollectionViewSectionedAnimatedDataSource<SectionDomain<String>>
-        { (_, collectionView, index, item) -> UICollectionViewCell in
-            let identifier = BSLSRoleCollectionCell.identifier
-            let reusableCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: index)
-            guard let cell = reusableCell as? BSLSRoleCollectionCell else {
-                fatalError("Cannot dequeueReusableCell with identifier: \(identifier)")
-            }
-            cell.fill(with: item)
-            return cell
-        }
-        return dataSource
-    }
-    
-}
-
 // MARK: BindHeroCollectionViewModelSelected
 extension BSListController {
     
@@ -121,33 +96,6 @@ extension BSListController {
                 self.viewModel.doSelect(heroStat: hero)
             })
             .disposed(by: self.disposeBag)
-    }
-    
-}
-
-// MARK: BindHeroStatsToHeroCollectionView
-extension BSListController {
-    
-    func bindHeroStatsToHeroCollectionView(observables: Observable<[HeroStatDomain]>, collectionView: UICollectionView) {
-        let dataSource = self.makeHeroStatDataSource()
-        observables
-            .map { [SectionDomain<HeroStatDomain>(header: "", footer: "", items: $0)] }
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
-            .disposed(by: self.disposeBag)
-    }
-    
-    private func makeHeroStatDataSource() -> RxCollectionViewSectionedAnimatedDataSource<SectionDomain<HeroStatDomain>> {
-        let dataSource = RxCollectionViewSectionedAnimatedDataSource<SectionDomain<HeroStatDomain>>
-        { (_, collectionView, index, item) -> BSLSHeroCollectionCell in
-            let identifier = BSLSHeroCollectionCell.identifier
-            let reusableCell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: index)
-            guard let cell = reusableCell as? BSLSHeroCollectionCell else {
-                fatalError("Cannot dequeueReusableCell with identifier: \(identifier)")
-            }
-            cell.fill(with: item)
-            return cell
-        }
-        return dataSource
     }
     
 }
@@ -218,72 +166,31 @@ extension BSListController {
 // MARK: BindShowedHeroStatsToHeroStatsAndHeroRoles
 extension BSListController {
     
-    func bindShowedHeroStatsToHeroStatsAndHeroRoles(observables: Observable<[HeroStatDomain]>,
+    func bindShowedHeroStatsToHeroStatsAndHeroRoles(relay: BehaviorRelay<[HeroStatDomain]>,
                                                     heroStatsSubject: PublishSubject<[HeroStatDomain]>,
                                                     heroRolesSubject: PublishSubject<[String]>) {
-        observables
-            .subscribeOn(ConcurrentMainScheduler.instance)
-            .bind { (heroStats) in
+        relay
+            .asDriver()
+            .drive(onNext: { (heroStats) in
                 heroStatsSubject.onNext(heroStats)
                 heroRolesSubject.onNext(heroStats.populateRoles())
-            }
+            })
             .disposed(by: self.disposeBag)
     }
     
 }
 
-// MARK: UICollectionViewDelegateFlowLayout
-extension BSListController: UICollectionViewDelegateFlowLayout {
+// MARK: BindSortBarButtonItemTap
+extension BSListController {
     
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        switch collectionView {
-        case self.listView.heroCollectionView:
-            return CGFloat(2)
-        case self.listView.roleCollectionView:
-            return CGFloat(2)
-        default:
-            return .zero
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        switch collectionView {
-        case self.listView.heroCollectionView:
-            return CGFloat(4)
-        case self.listView.roleCollectionView:
-            return CGFloat(4)
-        default:
-            return .zero
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-        switch collectionView {
-        case self.listView.heroCollectionView:
-            let width = (collectionView.bounds.width / 3) - 2
-            let height = width
-            return CGSize(width: width, height: height)
-        case self.listView.roleCollectionView:
-            switch UIDevice.current.orientation {
-            case .landscapeLeft, .landscapeRight:
-                let width = collectionView.bounds.width - 2
-                let height = CGFloat(44)
-                return CGSize(width: width, height: height)
-            default:
-                let width = (collectionView.bounds.width / 5) - 2
-                let height = collectionView.bounds.height
-                return CGSize(width: width, height: height)
-            }
-        default:
-            return .zero
-        }
-        
+    func bindSortBarButtonItemTap(barButtonItem: UIBarButtonItem) {
+        barButtonItem.rx
+            .tap
+            .asDriver()
+            .drive(onNext: { [unowned self] (_) in
+                self.viewModel.presentBSSortUI()
+            })
+            .disposed(by: self.disposeBag)
     }
     
 }

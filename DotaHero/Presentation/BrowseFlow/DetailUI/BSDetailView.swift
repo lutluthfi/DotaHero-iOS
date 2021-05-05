@@ -5,6 +5,8 @@
 //  Created by Arif Luthfiansyah on 07/04/21.
 //  Copyright (c) 2021 All rights reserved.
 
+import RxRelay
+import RxSwift
 import UIKit
 
 // MARK: BSDetailViewFunction
@@ -13,7 +15,7 @@ protocol BSDetailViewFunction {
                         navigationItem: UINavigationItem,
                         tabBarController: UITabBarController?)
     func viewWillDisappear()
-    func fill(with heroStat: HeroStatDomain, similarHeroes: [HeroStatDomain])
+    func insertNewSection(_ section: SectionDomain<TableRowDomain>)
 }
 
 // MARK: BSDetailViewSubview
@@ -23,6 +25,7 @@ protocol BSDetailViewSubview {
 
 // MARK: BSDetailViewVariable
 protocol BSDetailViewVariable {
+    var tableSections: [SectionDomain<TableRowDomain>] { get }
 }
 
 // MARK: BSDetailView
@@ -33,12 +36,20 @@ final class DefaultBSDetailView: UIView, BSDetailView {
     
     // MARK: BSDetailViewSubview
     lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: self.frame, style: .grouped)
-        
+        let tableView = UITableView(frame: UIScreen.main.fixedCoordinateSpace.bounds, style: .grouped)
+        tableView.rowHeight = CGFloat(44)
         return tableView
     }()
     
     // MARK: BSDetailViewVariable
+    lazy var tableSections: [SectionDomain<TableRowDomain>] = [SectionDomain(header: "", footer: "", items: [.heroImage]),
+                                                               SectionDomain(header: "", footer: "", items: [.heroName]),
+                                                               SectionDomain(header: "", footer: "", items: [.attackType]),
+                                                               SectionDomain(header: "", footer: "", items: [.baseHealth,
+                                                                                                             .baseMana,
+                                                                                                             .baseArmor,
+                                                                                                             .baseAttack]),
+                                                               SectionDomain(header: "", footer: "", items: [.moveSpeed])]
     
     // MARK: Init Function
     required init?(coder: NSCoder) {
@@ -63,7 +74,6 @@ final class DefaultBSDetailView: UIView, BSDetailView {
 extension DefaultBSDetailView {
     
     func subviewWillAdd() {
-        
     }
     
     func subviewConstraintWillMake() {
@@ -89,51 +99,8 @@ extension DefaultBSDetailView {
     func viewWillDisappear() {
     }
     
-    func fill(with heroStat: HeroStatDomain, similarHeroes: [HeroStatDomain]) {
-//        self.heroStatInfoView.heroInfoStackView.heroImageView.kf.indicatorType = .activity
-//        self.heroStatInfoView.heroInfoStackView.heroImageView.kf.setImage(with: URL(string: heroStat.image)!,
-//                                                                          options: [.cacheOriginalImage])
-//
-//        self.heroStatInfoView.heroInfoStackView.heroNameStackView.imageView.image = self.makeImage(with: "🏹")
-//        self.heroStatInfoView.heroInfoStackView.heroNameStackView.textLabel.text = heroStat.heroName
-//
-//        let heroRole = heroStat.roles.joined(separator: ", ")
-//        self.heroStatInfoView.heroInfoStackView.heroRoleLabel.text = "Role:\n\(heroRole)"
-//
-//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "⚔️")
-//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.baseAttackMin) - \(heroStat.baseAttackMax)"
-//
-//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "➕")
-//        self.heroStatInfoView.heroStatStackView.topHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.baseHealth)"
-//
-//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "🛡")
-//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.baseArmor)"
-//
-//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "🍶")
-//        self.heroStatInfoView.heroStatStackView.centerHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.baseMana)"
-//
-//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.leftStatStackView.imageView.image = self.makeImage(with: "🥾")
-//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.leftStatStackView.textLabel.text = "\(heroStat.moveSpeed)"
-//
-//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.rightStatStackView.imageView.image = self.makeImage(with: "⛓")
-//        self.heroStatInfoView.heroStatStackView.bottomHeroStatRowView.rightStatStackView.textLabel.text = "\(heroStat.primaryAttribute)"
-//
-//        guard similarHeroes.count == 3 else { return }
-//        self.similarHeroView.leftHeroImageView.kf.indicatorType = .activity
-//        self.similarHeroView.leftHeroImageView.kf.setImage(with: URL(string: similarHeroes[0].image)!,
-//                                                           options: [.cacheOriginalImage])
-//
-//        self.similarHeroView.centerHeroImageView.kf.indicatorType = .activity
-//        self.similarHeroView.centerHeroImageView.kf.setImage(with: URL(string: similarHeroes[1].image)!,
-//                                                             options: [.cacheOriginalImage])
-//
-//        self.similarHeroView.rightHeroImageView.kf.indicatorType = .activity
-//        self.similarHeroView.rightHeroImageView.kf.setImage(with: URL(string: similarHeroes[2].image)!,
-//                                                            options: [.cacheOriginalImage])
-    }
-    
-    private func makeImage(with string: String) -> UIImage? {
-        return string.image(withAttributes: [.font: UIFont.systemFont(ofSize: 22)], size: CGSize(width: 30, height: 30))
+    func insertNewSection(_ section: SectionDomain<TableRowDomain>) {
+        self.tableSections.append(section)
     }
     
 }

@@ -49,12 +49,16 @@ class BSLSRoleCollectionCell: UICollectionViewCell {
         self.subviewDidLayout()
     }
     
-    private func subviewWillAdd() {
+}
+
+extension BSLSRoleCollectionCell {
+    
+    func subviewWillAdd() {
         self.contentView.addSubview(self.containerContentView)
         self.containerContentView.addSubview(self.roleLabel)
     }
     
-    private func subviewConstraintWillMake() {
+    func subviewConstraintWillMake() {
         self.containerContentView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview().inset(2)
         }
@@ -64,10 +68,10 @@ class BSLSRoleCollectionCell: UICollectionViewCell {
         }
     }
     
-    private func subviewDidLayout() {
+    func subviewDidLayout() {
     }
     
-    private func viewDidInit() {
+    func viewDidInit() {
     }
     
 }

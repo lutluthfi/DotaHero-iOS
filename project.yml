@@ -14,7 +14,7 @@ configs:
 ## MARK: - Option Section
 options:
     xcodeVersion             : '12.4'
-    deploymentTarget         : '13.0'
+    deploymentTarget         : '14.0'
     groupSortPosition        : down
     generateEmptyDirectories : true
     minimumXcodeGenVersion   : '2.18.0'
@@ -32,7 +32,7 @@ targets:
                 CODE_SIGN_STYLE: Automatic
                 DEVELOPMENT_TEAM: 5NTQ9A32JY
                 EXCLUDED_ARCHS[sdk=iphonesimulator*]: arm64
-                IPHONEOS_DEPLOYMENT_TARGET: 13.0
+                IPHONEOS_DEPLOYMENT_TARGET: 14.0
                 INFOPLIST_FILE: DotaHero/Resources/Info.plist
                 MOMC_NO_WARNINGS: true
                 TARGETED_DEVICE_FAMILY: 1

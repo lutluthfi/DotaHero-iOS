@@ -6,8 +6,6 @@ target 'DotaHero' do
   pod 'DTCommonModule', :path => '../DTCommonModule'
   pod 'DTDataModule', :path => '../DTDataModule'
   pod 'DTDomainModule', :path => '../DTDomainModule'
-
-  pod 'IGListKit'
   
   pod 'Kingfisher'
 

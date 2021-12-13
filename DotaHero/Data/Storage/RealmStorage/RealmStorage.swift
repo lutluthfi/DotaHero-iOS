@@ -20,9 +20,15 @@ public final class RealmStorage {
     public static let shared: RealmStorageShared = RealmStorage()
     
     let _realm: Realm!
+    let _schemaVersion = UInt64(2)
     
     private init() {
-        self._realm = try! Realm(queue: .main)
+        var configuration = Realm.Configuration()
+        configuration.schemaVersion = self._schemaVersion
+        configuration.migrationBlock = { (migration, oldSchemaVersion) in }
+        Realm.Configuration.defaultConfiguration = configuration
+        let realm = try! Realm(queue: .main)
+        self._realm = realm
     }
     
 }
@@ -34,7 +40,7 @@ extension RealmStorage: RealmStorageShared {
     }
     
     public var schemaVersion: UInt64 {
-        return UInt64(1)
+        return self._schemaVersion
     }
     
 }

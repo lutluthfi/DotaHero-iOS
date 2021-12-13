@@ -22,6 +22,7 @@ public struct HeroStatDomain {
     public let baseMana: Int
     public let heroName: String
     public let image: String
+    public let isFavorite: Bool
     public let moveSpeed: Int
     public let primaryAttribute: String
     public let roles: [String]

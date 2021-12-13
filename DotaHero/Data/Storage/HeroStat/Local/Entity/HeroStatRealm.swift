@@ -33,6 +33,8 @@ public class HeroStatRealm: Object {
     @objc
     dynamic public var image: String = ""
     @objc
+    dynamic public var isFavorite: Bool = false
+    @objc
     dynamic public var moveSpeed: Int = 0
     @objc
     dynamic public var primaryAttribute: String = ""
@@ -58,6 +60,7 @@ extension HeroStatRealm {
                               baseMana: self.baseMana,
                               heroName: self.heroName,
                               image: self.image,
+                              isFavorite: self.isFavorite,
                               moveSpeed: self.moveSpeed,
                               primaryAttribute: self.primaryAttribute,
                               roles: Array(self.roles))
@@ -80,6 +83,7 @@ extension HeroStatDomain {
         object.baseMana = self.baseMana
         object.heroName = self.heroName
         object.image = self.image
+        object.isFavorite = self.isFavorite
         object.moveSpeed = self.moveSpeed
         object.primaryAttribute = self.primaryAttribute
         let _roles = List<String>()

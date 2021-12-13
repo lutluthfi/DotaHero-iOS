@@ -153,6 +153,7 @@ extension FetchHeroStatDTO.Response {
                               baseMana: self.baseMana ?? 0,
                               heroName: self.localizedName ?? "",
                               image: self.img != nil ? "\(OpenDotaNetworkService.baseURL)\(self.img!)" : "",
+                              isFavorite: false,
                               moveSpeed: self.moveSpeed ?? 0,
                               primaryAttribute: self.primaryAttr ?? "",
                               roles: self.roles ?? [])

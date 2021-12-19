@@ -1,0 +1,32 @@
+platform :ios, '12.0'
+
+target 'DTCommonModule' do
+  use_frameworks!
+  
+  pod 'RxCocoa'
+  pod 'RxSwift'
+
+  pod 'Swinject', '2.2.1'
+  pod 'SwinjectStoryboard', '2.6.2'
+
+  target 'DTCommonModuleTests' do
+    inherit! :search_paths
+    pod 'RxBlocking'
+    pod 'RxTest'
+  end
+
+  target 'DTCommonModuleUITests' do
+    # Pods for testing
+  end
+
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64' 
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+    end
+  end
+end

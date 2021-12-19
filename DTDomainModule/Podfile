@@ -1,0 +1,26 @@
+platform :ios, '12.0'
+
+target 'DTDomainModule' do
+  use_frameworks!
+
+  pod 'DTCommonModule', :path => '../DTCommonModule'
+
+  pod 'RealmSwift', '~>10'
+  
+  pod 'RxAlamofire'
+  pod 'RxDataSources'
+  pod 'RxSwift'
+
+  pod 'Swinject'
+
+  target 'DTDomainModuleTests' do
+    inherit! :search_paths
+    pod 'RxBlocking'
+    pod 'RxTest'
+  end
+
+  target 'DTDomainModuleUITests' do
+    # Pods for testing
+  end
+
+end

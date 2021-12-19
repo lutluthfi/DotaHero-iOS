@@ -21,11 +21,11 @@ class DateInt64Tests: XCTestCase {
     }()
     
     func test_toInt64_whenNotInMillis_shouldEqual() {
-        XCTAssertEqual(self.date.toInt64(), self.timestamp)
+        XCTAssertEqual(date.toInt64(), timestamp)
     }
     
     func test_toInt64_whenInMillis_shouldEqual() {
-        XCTAssertEqual(self.date.toInt64(inMillis: true), self.timestampMillisecond)
+        XCTAssertEqual(date.toInt64(inMillis: true), timestampMillisecond)
     }
     
 }

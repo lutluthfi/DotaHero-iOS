@@ -17,7 +17,7 @@ class RealmStorageMock {
     
     private init() {
         let configuration = Realm.Configuration(inMemoryIdentifier: "RealmStorageMock")
-        self._realm = try! Realm(configuration: configuration, queue: .main)
+        _realm = try! Realm(configuration: configuration, queue: .main)
     }
 }
 
@@ -28,7 +28,7 @@ protocol RealmStorageSharedMock: RealmStorageShared {
 extension RealmStorageMock: RealmStorageSharedMock {
     
     var realm: Realm {
-        return self._realm
+        return _realm
     }
     var schemaVersion: UInt64 {
         return UInt64(1)

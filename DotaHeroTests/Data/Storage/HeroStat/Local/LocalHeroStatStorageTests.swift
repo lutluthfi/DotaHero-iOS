@@ -10,31 +10,31 @@ import XCTest
 
 class LocalHeroStatStorageTests: XCTestCase {
     
-    private lazy var sut = self.makeLocalHeroStatStorageSUT()
-    private var insertedObject: HeroStatDomain!
+    private lazy var sut = makeLocalHeroStatStorageSUT()
+    private var insertedObject: HeroDomain!
     
     override func setUp() {
         super.setUp()
-        self.makeStub()
+        makeStub()
     }
     
     override func tearDown() {
-        self.removeStub()
+        removeStub()
         super.tearDown()
     }
     
     private func makeStub() {
-        let object = HeroStatDomain.stubElement.toRealm()
-        self.sut.realmStorage.realm.beginWrite()
-        self.sut.realmStorage.realm.add(object)
-        try! self.sut.realmStorage.realm.commitWrite()
-        self.insertedObject = object.toDomain()
+        let object = HeroDomain.stubElement.toRealm()
+        sut.realmStorage.realm.beginWrite()
+        sut.realmStorage.realm.add(object)
+        try! sut.realmStorage.realm.commitWrite()
+        insertedObject = object.toDomain()
     }
     
     private func removeStub() {
-        self.sut.realmStorage.realm.beginWrite()
-        self.sut.realmStorage.realm.deleteAll()
-        try! self.sut.realmStorage.realm.commitWrite()
+        sut.realmStorage.realm.beginWrite()
+        sut.realmStorage.realm.deleteAll()
+        try! sut.realmStorage.realm.commitWrite()
     }
     
 }
@@ -42,7 +42,7 @@ class LocalHeroStatStorageTests: XCTestCase {
 extension LocalHeroStatStorageTests {
     
     func test_fetchHeroStats_shouldFetchedInRealmStorage() throws {
-        let result = try self.sut.localStorage
+        let result = try sut.localStorage
             .fetchHeroStats()
             .toBlocking()
             .single()
@@ -52,15 +52,15 @@ extension LocalHeroStatStorageTests {
     }
     
     func test_insertHeroStats_shouldInsertedIntoRealmStorage() throws {
-        let insertedObject = HeroStatDomain.stubElement
+        let insertedObject = HeroDomain.stubElement
         
-        let result = try self.sut.localStorage
+        let result = try sut.localStorage
             .insertHeroStats([insertedObject])
             .toBlocking()
             .single()
         
         XCTAssertTrue(!result.isEmpty)
-        XCTAssertEqual(result, [self.insertedObject])
+        XCTAssertEqual(result, [insertedObject])
     }
     
 }
@@ -75,7 +75,7 @@ struct LocalHeroStatStorageSUT {
 extension XCTest {
     
     func makeLocalHeroStatStorageSUT() -> LocalHeroStatStorageSUT {
-        let realmStorage = self.makeRealmStorageMock()
+        let realmStorage = makeRealmStorageMock()
         let localStorage = DefaultLocalHeroStatStorage(realmStorage: realmStorage)
         return LocalHeroStatStorageSUT(localStorage: localStorage, realmStorage: realmStorage)
     }

@@ -14,12 +14,12 @@ public extension UIView {
                    borderWidth: CGFloat = 0,
                    cornerRad: CGFloat = 8,
                    maskedCorner: CACornerMask = []) -> UIView {
-        self.clipsToBounds = true
-        self.layer.borderColor = borderColor?.cgColor
-        self.layer.borderWidth = borderWidth
-        self.layer.cornerRadius = cornerRad
+        clipsToBounds = true
+        layer.borderColor = borderColor?.cgColor
+        layer.borderWidth = borderWidth
+        layer.cornerRadius = cornerRad
         if !maskedCorner.isEmpty {
-            self.layer.maskedCorners = maskedCorner
+            layer.maskedCorners = maskedCorner
         }
         return self
     }

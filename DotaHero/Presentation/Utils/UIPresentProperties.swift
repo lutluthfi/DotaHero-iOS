@@ -15,9 +15,11 @@ public struct UIPresentProperties {
     public let modalPresentationStyle: UIModalPresentationStyle
     public let modalTransitionStyle: UIModalTransitionStyle
     
-    public init(isModalInPresentation: Bool = false,
-                modalPresentationStyle: UIModalPresentationStyle = .automatic,
-                modalTransitionStyle: UIModalTransitionStyle = .coverVertical) {
+    public init(
+        isModalInPresentation: Bool = false,
+        modalPresentationStyle: UIModalPresentationStyle = .automatic,
+        modalTransitionStyle: UIModalTransitionStyle = .coverVertical
+    ) {
         self.isModalInPresentation = isModalInPresentation
         self.modalPresentationStyle = modalPresentationStyle
         self.modalTransitionStyle = modalTransitionStyle

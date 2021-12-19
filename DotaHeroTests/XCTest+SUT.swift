@@ -15,7 +15,7 @@ extension XCTest {
         return RealmStorageMock.shared
     }
     func makeSession() -> Session {
-        let session = Session(configuration: self.makeSessionConfiguration(),
+        let session = Session(configuration: makeSessionConfiguration(),
                               eventMonitors: [NetworkLogger()])
         return session
     }

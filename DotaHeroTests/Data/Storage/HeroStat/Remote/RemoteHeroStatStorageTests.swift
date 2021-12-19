@@ -10,12 +10,12 @@ import XCTest
 
 class RemoteHeroStatStorageTests: XCTestCase {
 
-    private lazy var sut = self.makeRemoteHeroStatStorageSUT()
+    private lazy var sut = makeRemoteHeroStatStorageSUT()
     
     func test_fetchHeroStats_shouldFetchedAllHeroStatsInOpenDotaEndpoint() throws {
-        let result = try self.sut.remoteStorage
+        let result = try sut.remoteStorage
             .fetchHeroStats()
-            .toBlocking(timeout: self.sut.timeout)
+            .toBlocking(timeout: sut.timeout)
             .single()
         
         XCTAssertFalse(result.0.isEmpty)
@@ -35,7 +35,7 @@ struct RemoteHeroStatStorageSUT {
 extension XCTest {
     
     func makeRemoteHeroStatStorageSUT() -> RemoteHeroStatStorageSUT {
-        let networkServiceSUT = self.makeOpenDotaNetworkServiceSUT()
+        let networkServiceSUT = makeOpenDotaNetworkServiceSUT()
         let remoteStorage = DefaultRemoteHeroStatStorage(openDotaNetworkService: networkServiceSUT.networkService)
         return RemoteHeroStatStorageSUT(remoteStorage: remoteStorage, timeout: networkServiceSUT.timeout)
     }

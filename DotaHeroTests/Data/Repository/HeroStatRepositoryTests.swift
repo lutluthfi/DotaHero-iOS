@@ -13,33 +13,33 @@ import XCTest
 
 class HeroStatRepositoryTests: XCTestCase {
     
-    private lazy var sut = self.makeHeroStatRepositorySUT()
+    private lazy var sut = makeHeroStatRepositorySUT()
     
     override func setUp() {
         super.setUp()
-        self.makeStub()
+        makeStub()
     }
     
     override func tearDown() {
-        self.removeStub()
+        removeStub()
         super.tearDown()
     }
     
     private func makeStub() {
-        let insertedObject = HeroStatDomain.stubElement
-        self.sut.localStorage
+        let insertedObject = HeroDomain.stubElement
+        sut.localStorage
             .insertHeroStats([insertedObject])
             .subscribe(onNext: { [unowned self] _ in
-                self.sut.semaphore.signal()
+                sut.semaphore.signal()
             })
-            .disposed(by: self.sut.disposeBag)
-        self.sut.semaphore.wait()
+            .disposed(by: sut.disposeBag)
+        sut.semaphore.wait()
     }
     
     private func removeStub() {
-        self.sut.realmStorage.realm.beginWrite()
-        self.sut.realmStorage.realm.deleteAll()
-        try! self.sut.realmStorage.realm.commitWrite()
+        sut.realmStorage.realm.beginWrite()
+        sut.realmStorage.realm.deleteAll()
+        try! sut.realmStorage.realm.commitWrite()
     }
     
 }
@@ -49,7 +49,7 @@ extension HeroStatRepositoryTests {
     func test_fetchHeroStats_whenStoragePointRealm_thenFetchedAllHeroStatsInRealm() throws {
         let storagePoint = StoragePoint.realm
         
-        let result = try self.sut.repository
+        let result = try sut.repository
             .fetchHeroStats(in: storagePoint)
             .toBlocking()
             .single()
@@ -61,7 +61,7 @@ extension HeroStatRepositoryTests {
     func test_fetchHeroStats_whenStoragePointRemote_thenFetchedAllHeroStatsInRemote() throws {
         let storagePoint = StoragePoint.remote
         
-        let result = try self.sut.repository
+        let result = try sut.repository
             .fetchHeroStats(in: storagePoint)
             .toBlocking()
             .single()
@@ -73,9 +73,9 @@ extension HeroStatRepositoryTests {
     
     func test_insertHeroStats_whenStoragePointRealm_thenInsertedIntoRealmStorage() throws {
         let storagePoint = StoragePoint.realm
-        let insertedObject = HeroStatDomain.stubElement
+        let insertedObject = HeroDomain.stubElement
         
-        let result = try self.sut.repository
+        let result = try sut.repository
             .insertHeroStats([insertedObject], into: storagePoint)
             .toBlocking()
             .single()
@@ -86,9 +86,9 @@ extension HeroStatRepositoryTests {
     
     func test_insertHeroStats_whenStoragePointRemote_thenInsertedIntoRealmStorage() {
         let storagePoint = StoragePoint.remote
-        let insertedObject = HeroStatDomain.stubElement
+        let insertedObject = HeroDomain.stubElement
         
-        XCTAssertThrowsError(try self.sut.repository
+        XCTAssertThrowsError(try sut.repository
                                 .insertHeroStats([insertedObject], into: storagePoint)
                                 .toBlocking()
                                 .single()) { (error) in
@@ -116,9 +116,9 @@ extension XCTest {
     func makeHeroStatRepositorySUT() -> HeroStatRepositorySUT {
         let disposeBag = DisposeBag()
         let semaphore = DispatchSemaphore(value: 0)
-        let realmStorage = self.makeRealmStorageMock()
-        let networkServiceSUT = self.makeOpenDotaNetworkServiceSUT()
-        let localStorage = DefaultLocalHeroStatStorage(realmStorage: self.makeRealmStorageMock())
+        let realmStorage = makeRealmStorageMock()
+        let networkServiceSUT = makeOpenDotaNetworkServiceSUT()
+        let localStorage = DefaultLocalHeroStatStorage(realmStorage: makeRealmStorageMock())
         let remoteStorage = DefaultRemoteHeroStatStorage(openDotaNetworkService: networkServiceSUT.networkService)
         let repository = DefaultHeroStatRepository(localStorage: localStorage, remoteStorage: remoteStorage)
         return HeroStatRepositorySUT(disposeBag: disposeBag,

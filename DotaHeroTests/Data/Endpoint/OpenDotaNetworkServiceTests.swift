@@ -12,13 +12,13 @@ import XCTest
 
 class OpenDotaNetworkServiceTests: XCTestCase {
 
-    private lazy var sut = self.makeOpenDotaNetworkServiceSUT()
+    private lazy var sut = makeOpenDotaNetworkServiceSUT()
     
     func test_fetchHeroStats_shouldFetchedAllHeroStatsFromOpenDotaEndpoint() throws {
         let request = FetchHeroStatDTO.Request()
-        let result = try self.sut.networkService
+        let result = try sut.networkService
             .fetchHeroStats(with: request)
-            .toBlocking(timeout: self.sut.timeout)
+            .toBlocking(timeout: sut.timeout)
             .single()
             
         XCTAssertTrue(!result.0.isEmpty)
@@ -37,7 +37,7 @@ struct OpenDotaNetworkServiceSUT {
 extension XCTest {
     
     func makeOpenDotaNetworkServiceSUT() -> OpenDotaNetworkServiceSUT {
-        let session = self.makeSession()
+        let session = makeSession()
         let networkService = OpenDotaNetworkService(session: session)
         return OpenDotaNetworkServiceSUT(networkService: networkService,
                                          timeout: session.sessionConfiguration.timeoutIntervalForRequest)

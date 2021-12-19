@@ -1,5 +1,5 @@
 //
-//  HeroStatDomain+Stub.swift
+//  HeroDomain+Stub.swift
 //  DotaHeroTests
 //
 //  Created by Arif Luthfiansyah on 07/04/21.
@@ -8,11 +8,11 @@
 import Foundation
 @testable import DEV_Dota_Hero
 
-extension HeroStatDomain {
+extension HeroDomain {
     
-    static var stubElement: HeroStatDomain {
+    static var stubElement: HeroDomain {
         let now = Date().toInt64()
-        return HeroStatDomain(realmID: "1",
+        return HeroDomain(realmID: "1",
                               createdAt: now,
                               updatedAt: now,
                               attackType: "Melee",

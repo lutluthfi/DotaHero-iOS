@@ -10,37 +10,37 @@ import XCTest
 
 class BrowseFlowCoordinatorTests: XCTestCase {
 
-    private lazy var sut = self.makeBrowseFlowCoordinatorSUT()
+    private lazy var sut = makeBrowseFlowCoordinatorSUT()
     
     override func tearDown() {
-        self.removeStub()
+        removeStub()
         super.tearDown()
     }
     
     private func removeStub() {
-        self.sut.navigationController.viewControllers.removeAll()
+        sut.navigationController.viewControllers.removeAll()
     }
 
 }
 
 extension BrowseFlowCoordinatorTests {
     
-    func test_start_whenInstructorPushToListUI_thenTopViewControllerIsBSListController() {
-        let requestValue = BSListViewModelRequest()
-        let insturctor = BrowseFlowCoordinatorInstructor.pushToListUI(requestValue)
+    func test_start_whenInstructorPushToListUI_thenTopViewControllerIsHeroListController() {
+        let request = HeroListViewModelRequest()
+        let insturctor = BrowseFlowCoordinatorInstructor.pushToListUI(request)
         
-        self.sut.flowCoordinator.start(with: insturctor)
+        sut.flowCoordinator.start(with: insturctor)
         
-        XCTAssertTrue(self.sut.navigationController.topViewController is BSListController)
+        XCTAssertTrue(sut.navigationController.topViewController is HeroListController)
     }
     
     func test_start_whenInstructorPushToDetailUI_thenTopViewControllerIsBSDetailController() {
-        let requestValue = BSDetailViewModelRequest(heroStat: .stubElement, similarHeroStats: [.stubElement])
-        let insturctor = BrowseFlowCoordinatorInstructor.pushToDetailUI(requestValue)
+        let request = BSDetailViewModelRequest(heroStat: .stubElement, similarHeroStats: [.stubElement])
+        let insturctor = BrowseFlowCoordinatorInstructor.pushToDetailUI(request)
         
-        self.sut.flowCoordinator.start(with: insturctor)
+        sut.flowCoordinator.start(with: insturctor)
         
-        XCTAssertTrue(self.sut.navigationController.topViewController is BSDetailController)
+        XCTAssertTrue(sut.navigationController.topViewController is BSDetailController)
     }
     
 }

@@ -29,32 +29,32 @@ class StackImageLabelView: UIStackView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.subviewDidAdd()
-        self.subviewConstraintDidMake()
-        self.viewDidInit()
+        addSubviews()
+        makeConstraintSubviews()
+        viewDidInit()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.subviewDidLayout()
+        subviewDidLayout()
     }
     
-    private func subviewDidAdd() {
-        self.addArrangedSubview(self.imageView)
-        self.addArrangedSubview(self.textLabel)
+    private func addSubviews() {
+        addArrangedSubview(imageView)
+        addArrangedSubview(textLabel)
     }
     
-    private func subviewConstraintDidMake() {
-        self.imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
+    private func makeConstraintSubviews() {
+        imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
     }
     
     private func subviewDidLayout() {
     }
     
     private func viewDidInit() {
-        self.axis = .horizontal
-        self.alignment = .fill
-        self.distribution = .fill
+        axis = .horizontal
+        alignment = .fill
+        distribution = .fill
     }
     
 }

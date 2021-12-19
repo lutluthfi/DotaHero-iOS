@@ -13,39 +13,39 @@ import XCTest
 
 class FetchAllHeroStatUseCaseTests: XCTestCase {
 
-    private lazy var sut = self.makeFetchAllHeroStatUseCaseSUT()
+    private lazy var sut = makeFetchAllHeroStatUseCaseSUT()
     
     override func setUp() {
         super.setUp()
     }
     
     override func tearDown() {
-        self.removeStub()
+        removeStub()
         super.tearDown()
     }
     
-    private func insertHeroStasIntoLocalMakeStub(_ observable: ([HeroStatDomain], NetworkProgress?)) -> Observable<([HeroStatDomain], NetworkProgress?)> {
-        return self.sut.repository
+    private func insertHeroStasIntoLocalMakeStub(_ observable: ([HeroDomain], NetworkProgress?)) -> Observable<([HeroDomain], NetworkProgress?)> {
+        return sut.repository
             .insertHeroStats(observable.0, into: .realm)
-            .flatMap { _ -> Observable<([HeroStatDomain], NetworkProgress?)> in
+            .flatMap { _ -> Observable<([HeroDomain], NetworkProgress?)> in
                 return .just(observable)
             }
     }
     
     private func makeRemoteStub(testExpectation: XCTestExpectation) {
-        self.sut.repository
+        sut.repository
             .fetchHeroStats(in: .remote)
             .flatMap(insertHeroStasIntoLocalMakeStub(_:))
             .subscribe(onNext: { [unowned testExpectation] _ in
                 testExpectation.fulfill()
             })
-            .disposed(by: self.sut.disposeBag)
+            .disposed(by: sut.disposeBag)
     }
     
     private func removeStub() {
-        self.sut.realmStorage.realm.beginWrite()
-        self.sut.realmStorage.realm.deleteAll()
-        try! self.sut.realmStorage.realm.commitWrite()
+        sut.realmStorage.realm.beginWrite()
+        sut.realmStorage.realm.deleteAll()
+        try! sut.realmStorage.realm.commitWrite()
     }
     
 }
@@ -54,9 +54,9 @@ extension FetchAllHeroStatUseCaseTests {
     
     func test_execute_whenEmptyInLocal_thenFetchedAllHeroStatInRemote() throws {
         let request = FetchAllHeroStatUseCaseRequest()
-        let result = try self.sut.useCase
+        let result = try sut.useCase
             .execute(request)
-            .toBlocking(timeout: self.sut.timeout)
+            .toBlocking(timeout: sut.timeout)
             .single()
         
         XCTAssertTrue(result.heroStats.count > 100)
@@ -64,14 +64,14 @@ extension FetchAllHeroStatUseCaseTests {
     }
     
     func test_execute_whenNotEmptyInLocal_thenFetchedAllHeroStatInLocal() throws {
-        let testExpectation = self.expectation(description: "")
-        self.makeRemoteStub(testExpectation: testExpectation)
-        self.wait(for: [testExpectation], timeout: self.sut.timeout)
+        let testExpectation = expectation(description: "")
+        makeRemoteStub(testExpectation: testExpectation)
+        wait(for: [testExpectation], timeout: sut.timeout)
         
         let request = FetchAllHeroStatUseCaseRequest()
-        let result = try self.sut.useCase
+        let result = try sut.useCase
             .execute(request)
-            .toBlocking(timeout: self.sut.timeout)
+            .toBlocking(timeout: sut.timeout)
             .single()
         
         XCTAssertTrue(result.heroStats.count > 100)
@@ -94,7 +94,7 @@ struct FetchAllHeroStatUseCaseSUT {
 extension XCTest {
     
     func makeFetchAllHeroStatUseCaseSUT() -> FetchAllHeroStatUseCaseSUT {
-        let repositorySUT = self.makeHeroStatRepositorySUT()
+        let repositorySUT = makeHeroStatRepositorySUT()
         let useCase = DefaultFetchAllHeroStatUseCase(repository: repositorySUT.repository)
         return FetchAllHeroStatUseCaseSUT(disposeBag: repositorySUT.disposeBag,
                                           realmStorage: repositorySUT.realmStorage,
